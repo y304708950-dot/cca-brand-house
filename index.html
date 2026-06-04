@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCA 品牌屋 2.0 - 品牌概念书</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts: Comfortaa, Noto Sans SC, Oswald -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Oswald:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- PptxGenJS (Includes JSZip internally to enable client-side .pptx generation) -->
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bgWarm: '#FFF4E1',      // 蕾丝白 (主白)
+                        borderBeige: '#E0D7C6',  // 褐白
+                        accentKhaki: '#BF9F88',  // 卡其
+                        accentOrange: '#FF8E05', // 亮橙
+                        navyBlue: '#2E4C8B',     // 银蓝 (主字/主深)
+                        accentBlue: '#002FA8',   // 克莱因蓝
+                        accentPink: '#FF30B4',   // 荧粉
+                        accentDarkPink: '#DC3C88',// 沉粉
+                        accentGreen: '#00DF6C',  // 主绿
+                        accentFogBlue: '#5299A1',// 雾蓝
+                        accentYellow: '#FBCE6A', // 暖黄
+                        accentGold: '#D59F09',   // 暗金
+                        accentRed: '#FA2D1A',    // 大红
+                        accentRose: '#DB3B21',   // 玫红
+                        accentWine: '#7E0D09'    // 枣红
+                    },
+                    fontFamily: {
+                        comfortaa: ['Comfortaa', 'sans-serif'],
+                        noto: ['Noto Sans SC', 'sans-serif'],
+                        oswald: ['Oswald', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #EBDDC3; /* 温暖外壳底色 */
+            overflow: hidden;
+            user-select: none;
+            touch-action: none; /* 新增：防止移动端在演示时意外触发系统滚动 */
+        }
+
+        /* Widescreen presentation canvas scale setup */
+        .ppt-viewport {
+            width: 1280px;
+            height: 720px;
+            transform-origin: center center;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Slide Transition System */
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 50px 70px;
+            background-color: #FFF4E1; /* 蕾丝白核心 */
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            animation: slideFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideFadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Aesthetic Grid decoration overlay */
+        .slide-decor-grid {
+            position: absolute;
+            inset: 0;
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(224, 215, 198, 0.15) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(224, 215, 198, 0.15) 1px, transparent 1px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .slide-decor-border {
+            position: absolute;
+            inset: 20px;
+            border: 1px solid rgba(224, 215, 198, 0.5);
+            pointer-events: none;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body class="min-height-screen flex flex-col items-center justify-center min-h-screen relative">
+
+    <!-- Top control & metadata bar -->
+    <div class="fixed top-0 left-0 right-0 h-12 bg-white/80 backdrop-blur-md border-b border-borderBeige flex items-center justify-between px-6 z-50 text-navyBlue text-sm font-medium">
+        <div class="flex items-center gap-3">
+            <span class="bg-accentOrange text-white font-bold px-2 py-0.5 rounded text-xs">CCA 2.0</span>
+            <span class="text-xs text-accentKhaki font-comfortaa">Community Center Alliance</span>
+        </div>
+        
+        <!-- PPTX EXPORT BUTTON -->
+        <button id="export-btn" onclick="exportToPPTX()" class="bg-navyBlue hover:bg-accentOrange text-white text-xs px-3.5 py-1.5 rounded-full transition-all duration-300 shadow flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-file-powerpoint"></i> 一键导出为 PPTX (PowerPoint)
+        </button>
+
+        <div class="flex items-center gap-4">
+            <button onclick="toggleFullscreen()" class="hover:text-accentOrange transition-colors" title="全屏演示"><i class="fa-expand fa-solid"></i></button>
+            <span class="text-xs tracking-wider" id="slide-number">01 / 12</span>
+        </div>
+    </div>
+
+    <!-- MAIN PPT PRESENTATION VIEWPORT -->
+    <div id="ppt-container" class="ppt-viewport shadow-2xl relative overflow-hidden bg-bgWarm rounded-xl border border-borderBeige/80">
+        
+        <!-- Decoration layer shared among standard layouts -->
+        <div class="slide-decor-grid"></div>
+        <div class="slide-decor-border"></div>
+
+        <!-- Slide 1: Cover Page -->
+        <div class="slide active" id="slide-1">
+            <div class="z-10 flex-grow flex flex-col justify-between pt-10">
+                <div class="flex items-center gap-3">
+                    <span class="bg-navyBlue text-bgWarm font-bold text-xs tracking-widest px-3 py-1 rounded-full uppercase font-comfortaa">Brand House 2.0</span>
+                    <span class="w-12 h-px bg-accentKhaki"></span>
+                    <span class="text-accentKhaki text-xs uppercase tracking-widest font-comfortaa">Community Center Alliance</span>
+                </div>
+                
+                <div class="my-auto max-w-4xl">
+                    <h1 class="text-5xl lg:text-6xl font-bold text-navyBlue tracking-wide leading-tight mb-4">
+                        百工集 CCA<br><span class="text-accentOrange">社区中心联盟</span>
+                    </h1>
+                    <p class="text-xl font-medium text-navyBlue/80 tracking-widest mb-2 font-comfortaa uppercase">The Greaks Community Center Alliance</p>
+                    <div class="h-1 w-24 bg-accentOrange mb-8 rounded"></div>
+                    <p class="text-base text-navyBlue/70 max-w-2xl leading-relaxed">
+                        通过美学运营、共创机制和精神原乡的打造，为都市社区提供精神归属感，让热爱落地，让灵魂为邻。
+                    </p>
+                </div>
+
+                <div class="flex justify-between items-end border-t border-borderBeige/40 pt-4">
+                    <div class="flex items-center gap-6">
+                        <div>
+                            <p class="text-[10px] text-accentKhaki uppercase font-comfortaa tracking-widest">Slogan</p>
+                            <p class="text-sm font-bold text-navyBlue"><i class="fa-solid fa-link text-accentOrange mr-1"></i> 链接无限热爱 · 共创理想生活</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-accentKhaki uppercase font-comfortaa tracking-widest">Business segment</p>
+                        <p class="text-sm font-bold text-navyBlue">百工集旗下生活方式板块</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Brand Identity & Definition -->
+        <div class="slide" id="slide-2">
+            <div class="z-10 flex-grow flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">01 / Brand Definition</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">品牌全称与身份定位</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">CCA Identity</span>
+                    </div>
+                </div>
+
+                <!-- Content Body -->
+                <div class="grid grid-cols-12 gap-6 my-auto items-stretch">
+                    <!-- Left Column: Primary Concept Card -->
+                    <div class="col-span-4 bg-white border border-borderBeige rounded-lg p-6 flex flex-col justify-between shadow-sm">
+                        <div>
+                            <span class="text-xs bg-accentYellow/50 text-accentGold font-bold px-2.5 py-1 rounded">核心定位</span>
+                            <h3 class="text-xl font-bold text-navyBlue mt-4 mb-2">城市文化生活方式合伙人</h3>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                CCA 不仅是社区空间的运营者，更是居民理想生活的共创者。通过高度的责任感与专业度，打破都市原子化隔阂，共同编织理想生活网。
+                            </p>
+                        </div>
+                        <div class="border-t border-borderBeige/50 pt-4 mt-4">
+                            <p class="text-[10px] text-accentKhaki font-comfortaa tracking-wider">CORE PROPOSAL</p>
+                            <p class="text-xs font-bold text-navyBlue mt-1">高度责任感 × 专业度交付</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: The 3 Core Deliveries -->
+                    <div class="col-span-8 flex flex-col justify-between gap-4">
+                        <div class="bg-white/60 border border-borderBeige rounded-lg p-4 flex items-start gap-4">
+                            <span class="w-8 h-8 rounded-full bg-accentOrange/10 text-accentOrange flex items-center justify-center font-bold text-sm shrink-0">01</span>
+                            <div>
+                                <h4 class="font-bold text-navyBlue text-sm">有温度的选择 <span class="text-xs font-normal text-accentKhaki font-comfortaa">/ Warm & Selective</span></h4>
+                                <p class="text-xs text-navyBlue/70 mt-1 leading-relaxed">深度贴近社群和居民的真实诉求，拒绝冷冰冰、毫无温度的标准化硬性铺装。</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white/60 border border-borderBeige rounded-lg p-4 flex items-start gap-4">
+                            <span class="w-8 h-8 rounded-full bg-accentBlue/10 text-accentBlue flex items-center justify-center font-bold text-sm shrink-0">02</span>
+                            <div>
+                                <h4 class="font-bold text-navyBlue text-sm">专业的赋能 <span class="text-xs font-normal text-accentKhaki font-comfortaa">/ Professional & Capable</span></h4>
+                                <p class="text-xs text-navyBlue/70 mt-1 leading-relaxed">提供完善的后台资源支持与行动指导，保障创意顺利落地，赋能社区文化生长。</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white/60 border border-borderBeige rounded-lg p-4 flex items-start gap-4">
+                            <span class="w-8 h-8 rounded-full bg-accentGreen/10 text-accentGreen flex items-center justify-center font-bold text-sm shrink-0">03</span>
+                            <div>
+                                <h4 class="font-bold text-navyBlue text-sm">活力的创新 <span class="text-xs font-normal text-accentKhaki font-comfortaa">/ Vibrant & Creative</span></h4>
+                                <p class="text-xs text-navyBlue/70 mt-1 leading-relaxed">持续引入前卫且多元的新新鲜体验，拒绝一成不变，保持社区永续不衰的生命活力。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>The Greaks Community Center Alliance</span>
+                    <span>Slide 02</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Brand Core Philosophy System -->
+        <div class="slide" id="slide-3">
+            <div class="z-10 flex-grow flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">02 / Core Philosophy</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">品牌核心理念体系</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">CCA Principles</span>
+                    </div>
+                </div>
+
+                <!-- Content Body -->
+                <div class="grid grid-cols-3 gap-6 my-auto">
+                    <!-- Vision Card -->
+                    <div class="bg-white border-t-4 border-accentOrange rounded-lg p-6 shadow-sm flex flex-col justify-between h-[360px]">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold tracking-widest font-comfortaa text-accentOrange block mb-2">Vision</span>
+                            <h3 class="text-lg font-bold text-navyBlue mb-4">品牌愿景：共创美好生活</h3>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                打破城市原子化隔阂，让热爱成为连结彼此的纽带。我们致力于构建一个让每一个灵魂都能找到精神寄托的“原乡”，在这里实现美学与人文在日常生活的无缝交融。
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <i class="fa-solid fa-earth-asia text-accentOrange/20 text-5xl"></i>
+                        </div>
+                    </div>
+
+                    <!-- Mission Card -->
+                    <div class="bg-white border-t-4 border-accentBlue rounded-lg p-6 shadow-sm flex flex-col justify-between h-[360px]">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold tracking-widest font-comfortaa text-accentBlue block mb-2">Mission</span>
+                            <h3 class="text-lg font-bold text-navyBlue mb-4">品牌使命：链接价值，激活潜能</h3>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                深度挖掘每一位社区成员身上的闪光点，并将其高效汇聚成城市本土文化生长的源动力。CCA 旨在通过高效链接，让社区演变为一个持续涌现创意和活力的生态体系。
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <i class="fa-solid fa-bolt text-accentBlue/20 text-5xl"></i>
+                        </div>
+                    </div>
+
+                    <!-- Core Value Card -->
+                    <div class="bg-white border-t-4 border-accentGreen rounded-lg p-6 shadow-sm flex flex-col justify-between h-[360px]">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold tracking-widest font-comfortaa text-accentGreen block mb-2">Core Belief</span>
+                            <h3 class="text-lg font-bold text-navyBlue mb-4">核心理念：以美为引，共建梦想</h3>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                从空间规划到社群互动，让机能美学与人性温厚关怀贯穿生活的全场景细节。我们始终深信，美学不是点缀饰品，而是日常的关怀，是凝聚社区的力量之源。
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <i class="fa-solid fa-compass text-accentGreen/20 text-5xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>Guideline of the core mission</span>
+                    <span>Slide 03</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Four Brand Personalities -->
+        <div class="slide" id="slide-4">
+            <div class="z-10 flex-grow flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">03 / Brand Personalities</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">CCA 四大核心个性</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">Four Attributes</span>
+                    </div>
+                </div>
+
+                <!-- Content Body -->
+                <div class="grid grid-cols-4 gap-4 my-auto">
+                    <!-- Core 1 -->
+                    <div class="bg-white border border-borderBeige rounded-lg p-5 flex flex-col justify-between h-[340px] shadow-sm">
+                        <div>
+                            <div class="w-10 h-10 rounded bg-accentDarkPink/10 text-accentDarkPink flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-eye text-lg"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-navyBlue">感受美学</h3>
+                            <p class="text-[10px] text-accentKhaki font-comfortaa uppercase tracking-widest mb-3">Aesthetic</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                建立极深层的情感连接，在空间的每一个死角与设计物料微末处，都能体会到被照顾、被周密理解的设计温度。
+                            </p>
+                        </div>
+                        <span class="text-[10px] font-bold text-accentDarkPink/80 uppercase font-comfortaa tracking-widest">Detail Touch</span>
+                    </div>
+
+                    <!-- Core 2 -->
+                    <div class="bg-white border border-borderBeige rounded-lg p-5 flex flex-col justify-between h-[340px] shadow-sm">
+                        <div>
+                            <div class="w-10 h-10 rounded bg-accentGreen/10 text-accentGreen flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-heart text-lg"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-navyBlue">真性情</h3>
+                            <p class="text-[10px] text-accentKhaki font-comfortaa uppercase tracking-widest mb-3">Authenticity</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                关注并呵护每一个真实、独特的个体成长。营造毫无功利枷锁、可以放肆享受高调性生活方式的精神净土。
+                            </p>
+                        </div>
+                        <span class="text-[10px] font-bold text-accentGreen/80 uppercase font-comfortaa tracking-widest">Real & Pure</span>
+                    </div>
+
+                    <!-- Core 3 -->
+                    <div class="bg-white border border-borderBeige rounded-lg p-5 flex flex-col justify-between h-[340px] shadow-sm">
+                        <div>
+                            <div class="w-10 h-10 rounded bg-accentBlue/10 text-accentBlue flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-shield-halved text-lg"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-navyBlue">专业赋能</h3>
+                            <p class="text-[10px] text-accentKhaki font-comfortaa uppercase tracking-widest mb-3">Professionalism</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                基于百工集运营基底，构建高度完备的空间治理与多阶层孵化系统，无论何时都能提供可依赖的专业后援。
+                            </p>
+                        </div>
+                        <span class="text-[10px] font-bold text-accentBlue/80 uppercase font-comfortaa tracking-widest">Support System</span>
+                    </div>
+
+                    <!-- Core 4 -->
+                    <div class="bg-white border border-borderBeige rounded-lg p-5 flex flex-col justify-between h-[340px] shadow-sm">
+                        <div>
+                            <div class="w-10 h-10 rounded bg-accentPink/10 text-accentPink flex items-center justify-center mb-4">
+                                <i class="fa-solid fa-arrows-spin text-lg"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-navyBlue">开放包容</h3>
+                            <p class="text-[10px] text-accentKhaki font-comfortaa uppercase tracking-widest mb-3">Openness</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                主动担当时代新思潮的引路者，敢于打破传统行业的思维壁垒，持续为社区跨界互动引入新鲜感。
+                            </p>
+                        </div>
+                        <span class="text-[10px] font-bold text-accentPink/80 uppercase font-comfortaa tracking-widest">Infinity Boundary</span>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>Four pillars of personality traits</span>
+                    <span>Slide 04</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Core Carriers -->
+        <div class="slide" id="slide-5">
+            <div class="z-10 flex-grow flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">04 / Carriers</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">核心载体：城市客厅与特色空间</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">Urban Living Room</span>
+                    </div>
+                </div>
+
+                <!-- Content Body -->
+                <div class="grid grid-cols-2 gap-8 my-auto items-center">
+                    <!-- Left: Carriers Details -->
+                    <div class="flex flex-col gap-5">
+                        <div class="flex gap-4">
+                            <span class="w-6 h-6 rounded bg-accentOrange/10 text-accentOrange flex items-center justify-center shrink-0 mt-0.5"><i class="fa-solid fa-cubes text-xs"></i></span>
+                            <div>
+                                <h4 class="font-bold text-navyBlue text-sm">多功能场景融合 <span class="text-xs text-accentKhaki font-normal">/ Multi-functional Scene</span></h4>
+                                <p class="text-xs text-navyBlue/70 mt-1 leading-relaxed">
+                                    集成公众交互、艺术策展、主理人工作和阅读休闲等。打破以往孤立固定的单一业态界限，弹性装载多元维度的社区社交与兴趣课程。
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <span class="w-6 h-6 rounded bg-accentFogBlue/10 text-accentFogBlue flex items-center justify-center shrink-0 mt-0.5"><i class="fa-solid fa-recycle text-xs"></i></span>
+                            <div>
+                                <h4 class="font-bold text-navyBlue text-sm">闲置资源激活 <span class="text-xs text-accentKhaki font-normal">/ Idle Resource Activation</span></h4>
+                                <p class="text-xs text-navyBlue/70 mt-1 leading-relaxed">
+                                    整合公共设施死角与闲置领域，让空间价值回归社区居民。以小而美、且低门槛的可持续运营来盘活闲置资产。
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <span class="w-6 h-6 rounded bg-accentGreen/10 text-accentGreen flex items-center justify-center shrink-0 mt-0.5"><i class="fa-solid fa-sparkles text-xs"></i></span>
+                            <div>
+                                <h4 class="font-bold text-navyBlue text-sm">服务链条创新 <span class="text-xs text-accentKhaki font-normal">/ Service Chain Innovation</span></h4>
+                                <p class="text-xs text-navyBlue/70 mt-1 leading-relaxed">
+                                    通过引入“如是家族”品牌配套及常态主场活动，重塑社区微循环，提供专业贴心、伴随式的社群管家服务。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Beautiful Real Community Image -->
+                    <div class="h-[320px] rounded-lg overflow-hidden border border-borderBeige shadow-lg relative">
+                        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=800" alt="温馨的社区城市客厅空间" class="w-full h-full object-cover">
+                        <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm border border-borderBeige/60 px-3 py-1.5 rounded shadow-sm">
+                            <span class="text-[10px] text-navyBlue font-bold"><i class="fa-solid fa-circle-info text-accentOrange mr-1"></i> 城市客厅共创实景构想</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>Physical containers of the communities</span>
+                    <span>Slide 05</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: "1+N+4" Construction Model -->
+        <div class="slide" id="slide-6">
+            <div class="z-10 flex-grow flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">05 / Construction Path</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">“1+N+4” 社区系统化建设路径</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">Ecosystem Blueprint</span>
+                    </div>
+                </div>
+
+                <!-- Content Body -->
+                <div class="grid grid-cols-3 gap-6 my-auto">
+                    <!-- Core 1 -->
+                    <div class="bg-white border border-borderBeige rounded-lg p-5 flex flex-col justify-between shadow-sm h-[350px]">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-borderBeige/40 pb-3 mb-4">
+                                <span class="text-xs font-bold text-accentOrange uppercase font-comfortaa">01 / Leader</span>
+                                <i class="fa-solid fa-compass text-accentOrange text-sm"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-navyBlue mb-2">1 个核心引领</h3>
+                            <p class="text-[10px] text-accentKhaki mb-3">CCA 品牌与运营团队</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                输出强势品牌背书、科学运营指导、设立“示范课堂”和统一体验标准，确保联盟建设过程中的审美一致性。
+                            </p>
+                        </div>
+                        <ul class="text-[11px] text-navyBlue/80 flex flex-col gap-1.5 pt-3 border-t border-dashed border-borderBeige">
+                            <li><i class="fa-solid fa-check text-accentOrange mr-1"></i> 标准化输出与品牌监管</li>
+                            <li><i class="fa-solid fa-check text-accentOrange mr-1"></i> 品牌标准及专业指导赋能</li>
+                        </ul>
+                    </div>
+
+                    <!-- Core N -->
+                    <div class="bg-white border border-borderBeige rounded-lg p-5 flex flex-col justify-between shadow-sm h-[350px]">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-borderBeige/40 pb-3 mb-4">
+                                <span class="text-xs font-bold text-accentBlue uppercase font-comfortaa">02 / Dynamic</span>
+                                <i class="fa-solid fa-users text-accentBlue text-sm"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-navyBlue mb-2">N 个动力主体</h3>
+                            <p class="text-[10px] text-accentKhaki mb-3">多元化自驱人群集</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                由社区骨干居民（体验评价）、青年跨界主理人（创意执行）、社群机构（文化传播）组成，推动活力良性循环。
+                            </p>
+                        </div>
+                        <ul class="text-[11px] text-navyBlue/80 flex flex-col gap-1.5 pt-3 border-t border-dashed border-borderBeige">
+                            <li><i class="fa-solid fa-check text-accentBlue mr-1"></i> 主理人创意无限度孵化</li>
+                            <li><i class="fa-solid fa-check text-accentBlue mr-1"></i> 多元自组织社群活态传播</li>
+                        </ul>
+                    </div>
+
+                    <!-- Core 4 -->
+                    <div class="bg-white border border-borderBeige rounded-lg p-5 flex flex-col justify-between shadow-sm h-[350px]">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-borderBeige/40 pb-3 mb-4">
+                                <span class="text-xs font-bold text-accentGreen uppercase font-comfortaa">03 / Support</span>
+                                <i class="fa-solid fa-handshake-angle text-accentGreen text-sm"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-navyBlue mb-2">4 方协同支撑</h3>
+                            <p class="text-[10px] text-accentKhaki mb-3">多阶层联盟合作网络</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                融合【政府部门】政策红利、【企业伙伴】商业资金、【社会组织】专业指导与【专业机构】全程精益技术支撑。
+                            </p>
+                        </div>
+                        <ul class="text-[11px] text-navyBlue/80 flex flex-col gap-1.5 pt-3 border-t border-dashed border-borderBeige">
+                            <li><i class="fa-solid fa-check text-accentGreen mr-1"></i> 政策背书及社会资源汇集</li>
+                            <li><i class="fa-solid fa-check text-accentGreen mr-1"></i> 多维度 PPP 模式共生架构</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>Dynamic multi-stakeholder governance</span>
+                    <span>Slide 06</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Nomenclature / Name Interpretation -->
+        <div class="slide" id="slide-7">
+            <div class="z-10 flex-grow flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">06 / Brand Interpretation</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">CCA 品牌命名释义体系</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">What CCA Stands For</span>
+                    </div>
+                </div>
+
+                <!-- Content Body -->
+                <div class="bg-white border border-borderBeige rounded-lg overflow-hidden my-auto shadow-sm">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-borderBeige/30 border-b border-borderBeige">
+                                <th class="p-4 text-xs font-bold text-navyBlue tracking-wider uppercase font-comfortaa w-[180px]">Morpheme / 词素</th>
+                                <th class="p-4 text-xs font-bold text-navyBlue tracking-wider w-[140px]">中文含义</th>
+                                <th class="p-4 text-xs font-bold text-navyBlue tracking-wider">深层文化解读 / 场景展现</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-borderBeige/40">
+                            <tr>
+                                <td class="p-4 text-sm font-bold text-accentOrange font-comfortaa">Core Space</td>
+                                <td class="p-4 text-xs font-bold text-navyBlue">核心空间</td>
+                                <td class="p-4 text-xs text-navyBlue/70 leading-relaxed">
+                                    融合机能美学与前卫创意的实体聚落，代表“硬核探索”与“现代高频社交”的结合。
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-sm font-bold text-accentOrange font-comfortaa">Community</td>
+                                <td class="p-4 text-xs font-bold text-navyBlue">社区</td>
+                                <td class="p-4 text-xs text-navyBlue/70 leading-relaxed">
+                                    不再是冷冰冰的标准化物理居住空间，而是成为城市文化与共创生活方式的深层聚集地。
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-sm font-bold text-accentOrange font-comfortaa">Center</td>
+                                <td class="p-4 text-xs font-bold text-navyBlue">中心</td>
+                                <td class="p-4 text-xs text-navyBlue/70 leading-relaxed">
+                                    社区资源优化调度与文化发声的核心超级枢纽，汇拢并放大每一份微小热爱的调度系统。
+                                </td>
+                            </tr>
+                            <tr class="bg-accentYellow/10">
+                                <td class="p-4 text-sm font-bold text-accentBlue font-comfortaa">CCA</td>
+                                <td class="p-4 text-xs font-bold text-accentBlue">社区中心联盟</td>
+                                <td class="p-4 text-xs text-accentBlue/80 font-medium leading-relaxed">
+                                    融合百工集，基于共创价值观与文化认同，链接都市多节点、激发个体价值的新型联盟体系。
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>Etymological layout of the alliance</span>
+                    <span>Slide 07</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Shared Facilities Matrix -->
+        <div class="slide" id="slide-8">
+            <div class="z-10 flex-grow flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">07 / Facility Matrix</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">共享设施矩阵与场景应用</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">Infrastructure Matrix</span>
+                    </div>
+                </div>
+
+                <!-- Content Body -->
+                <div class="grid grid-cols-12 gap-6 my-auto items-stretch">
+                    <!-- Left Column: Scene classification list -->
+                    <div class="col-span-8 grid grid-cols-2 gap-4">
+                        <div class="bg-white border border-borderBeige rounded-lg p-4 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-navyBlue text-sm flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-accentOrange"></span> 运动活力</h4>
+                                <p class="text-[10px] text-accentKhaki font-comfortaa mt-0.5">SPORTS VITALITY</p>
+                                <p class="text-xs text-navyBlue/70 mt-2 leading-relaxed">篮球架、乒乓球台、舞蹈室、草坪网篮。低门槛设计作为社交的第一触点。</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-borderBeige rounded-lg p-4 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-navyBlue text-sm flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-accentPink"></span> 亲子陪伴</h4>
+                                <p class="text-[10px] text-accentKhaki font-comfortaa mt-0.5">FAMILY COMPANIONSHIP</p>
+                                <p class="text-xs text-navyBlue/70 mt-2 leading-relaxed">安全、有趣、有温度的沙坑与滑梯。注重家庭成长，构建有温度的安全活动场域。</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-borderBeige rounded-lg p-4 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-navyBlue text-sm flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-accentBlue"></span> 学习成长</h4>
+                                <p class="text-[10px] text-accentKhaki font-comfortaa mt-0.5">STUDY & DEVELOPMENT</p>
+                                <p class="text-xs text-navyBlue/70 mt-2 leading-relaxed">专注自习室、共享图书角。高舒适度、有质感，满足个体自我成长的空间渴望。</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-borderBeige rounded-lg p-4 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-navyBlue text-sm flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-accentGreen"></span> 文化表达</h4>
+                                <p class="text-[10px] text-accentKhaki font-comfortaa mt-0.5">CULTURAL EXPRESSION</p>
+                                <p class="text-xs text-navyBlue/70 mt-2 leading-relaxed">专属“主理人故事风采展示墙”。高频轮换展示社区营造师与核心群落的成长故事。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Principle framework -->
+                    <div class="col-span-4 bg-accentKhaki/10 border border-borderBeige rounded-lg p-5 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] bg-accentKhaki text-white font-bold px-2 py-0.5 rounded uppercase font-comfortaa tracking-wider">Guidelines</span>
+                            <h4 class="font-bold text-navyBlue text-sm mt-3 mb-2">设施使用三大核心原则</h4>
+                            <ul class="text-xs text-navyBlue/80 flex flex-col gap-2 leading-relaxed">
+                                <li><strong class="text-accentOrange">1. 免费开放：</strong> 所有人均可免费享用，打通无障碍参与通道。</li>
+                                <li><strong class="text-accentOrange">2. 预约机制：</strong> 通过自研小程序即时锁入，主理人自主维护。</li>
+                                <li><strong class="text-accentOrange">3. 押金制度：</strong> 零门槛免费使用的前提，由押金约束和保护设备好损。</li>
+                            </ul>
+                        </div>
+                        <div class="text-[10px] text-accentKhaki font-comfortaa border-t border-borderBeige pt-3">
+                            RESOURCES SHARED DEMOCRATICALLY
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>Equitable public service delivery</span>
+                    <span>Slide 08</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Community Hub (Digital Dashboard Mockup) -->
+        <div class="slide" id="slide-9">
+            <div class="z-10 flex-grow flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">08 / Community Hub</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">玩家中心：社区数字脑与信息枢纽</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">Digital Touchpoint</span>
+                    </div>
+                </div>
+
+                <!-- Content Body -->
+                <div class="grid grid-cols-12 gap-6 my-auto items-stretch">
+                    <!-- Dashboard Mockup (Visual) -->
+                    <div class="col-span-5 bg-navyBlue text-bgWarm rounded-lg p-5 flex flex-col justify-between shadow-md relative overflow-hidden">
+                        <!-- Tiny visual decoration representing UI design -->
+                        <div class="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-accentOrange/10"></div>
+                        <div>
+                            <div class="flex items-center gap-2 text-xs text-accentYellow font-comfortaa uppercase tracking-widest border-b border-white/10 pb-2 mb-4">
+                                <span class="w-1.5 h-1.5 rounded-full bg-accentGreen animate-pulse"></span> Terminal System Active
+                            </div>
+                            <h4 class="font-bold text-lg mb-2">玩家交互终端大屏</h4>
+                            <p class="text-[11px] text-bgWarm/70 leading-relaxed mb-4">
+                                玩家中心电子终端是连接物理世界和虚拟数字社区的实时纽带。消除冰冷的数据汇报，赋予每一个跳跃数据最深挚的人性故事。
+                            </p>
+                        </div>
+                        <div class="bg-white/5 border border-white/15 rounded p-3 text-[10px] text-bgWarm/60 leading-relaxed">
+                            <strong class="text-accentOrange block mb-1">设计精髓：</strong> 
+                            大屏不是冷冰冰的信息板，而是社区温度的实时呈现——让每个数字背后都是真实的人与故事。
+                        </div>
+                    </div>
+
+                    <!-- Hub 6 Modules -->
+                    <div class="col-span-7 grid grid-cols-2 gap-3">
+                        <div class="bg-white border border-borderBeige rounded p-3 flex items-start gap-2.5">
+                            <span class="w-6 h-6 rounded bg-accentOrange/10 text-accentOrange flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">1</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-navyBlue">实时活动数据</h5>
+                                <p class="text-[10px] text-navyBlue/60 mt-0.5">当日排期及在线报名活跃人数。</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-borderBeige rounded p-3 flex items-start gap-2.5">
+                            <span class="w-6 h-6 rounded bg-accentFogBlue/10 text-accentFogBlue flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">2</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-navyBlue">社区活动日历</h5>
+                                <p class="text-[10px] text-navyBlue/60 mt-0.5">透视周度课程、长期规划和季庆时间。</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-borderBeige rounded p-3 flex items-start gap-2.5">
+                            <span class="w-6 h-6 rounded bg-accentBlue/10 text-accentBlue flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">3</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-navyBlue">主理人风采</h5>
+                                <p class="text-[10px] text-navyBlue/60 mt-0.5">轮流展现杰出营造师、主理人故事与成就。</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-borderBeige rounded p-3 flex items-start gap-2.5">
+                            <span class="w-6 h-6 rounded bg-accentYellow/20 text-accentGold flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">4</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-navyBlue">安全科普与温暖提醒</h5>
+                                <p class="text-[10px] text-navyBlue/60 mt-0.5">气候、防暑、运动安全防范与提醒通知。</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-borderBeige rounded p-3 flex items-start gap-2.5">
+                            <span class="w-6 h-6 rounded bg-accentPink/10 text-accentPink flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">5</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-navyBlue">用户成就</h5>
+                                <p class="text-[10px] text-navyBlue/60 mt-0.5">排行榜、高频贡献纪念、个人里程碑。</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-borderBeige rounded p-3 flex items-start gap-2.5">
+                            <span class="w-6 h-6 rounded bg-accentGreen/10 text-accentGreen flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">6</span>
+                            <div>
+                                <h5 class="text-xs font-bold text-navyBlue">互动投票通道</h5>
+                                <p class="text-[10px] text-navyBlue/60 mt-0.5">社群方向实时共创审议与满意度反馈。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>Digital-Physical Interactive Terminal</span>
+                    <span>Slide 09</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Merchandise Ecosystem -->
+        <div class="slide" id="slide-10">
+            <div class="z-10 flex-grow flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">09 / Merchandise</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">品牌周边产品四层分层生态</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">Product Layer Design</span>
+                    </div>
+                </div>
+
+                <!-- Content Body -->
+                <div class="grid grid-cols-4 gap-4 my-auto">
+                    <!-- Layer 1 -->
+                    <div class="bg-white border-t-2 border-accentOrange rounded p-4 flex flex-col justify-between h-[340px] shadow-sm">
+                        <div>
+                            <span class="text-[10px] font-comfortaa font-bold text-accentOrange tracking-widest block mb-2">01 / WORKWEAR</span>
+                            <h4 class="font-bold text-sm text-navyBlue mb-2">核心装备层</h4>
+                            <p class="text-[10px] text-accentKhaki mb-3">面向主理人 / 营造师</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                工业机能风工作服，搭配 CORDURA® 级耐磨面料，极轻奢质感徽章与身份证件夹，以此建立尊崇的身份认同。
+                            </p>
+                        </div>
+                        <div class="bg-accentOrange/5 p-2 rounded text-[10px] text-accentOrange font-medium text-center">
+                            高调建立队伍荣誉感与身份
+                        </div>
+                    </div>
+
+                    <!-- Layer 2 -->
+                    <div class="bg-white border-t-2 border-accentBlue rounded p-4 flex flex-col justify-between h-[340px] shadow-sm">
+                        <div>
+                            <span class="text-[10px] font-comfortaa font-bold text-accentBlue tracking-widest block mb-2">02 / UTILITARIAN</span>
+                            <h4 class="font-bold text-sm text-navyBlue mb-2">配件辅助层</h4>
+                            <p class="text-[10px] text-accentKhaki mb-3">面向高活跃社区骨干</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                高效战术背包、多耐用防刮手套、工具包及轻量保冷水壶。全维度助力主理人日常营造或活动时的效率提升。
+                            </p>
+                        </div>
+                        <div class="bg-accentBlue/5 p-2 rounded text-[10px] text-accentBlue font-medium text-center">
+                            多功用机能户外风与活动支持
+                        </div>
+                    </div>
+
+                    <!-- Layer 3 -->
+                    <div class="bg-white border-t-2 border-accentGreen rounded p-4 flex flex-col justify-between h-[340px] shadow-sm">
+                        <div>
+                            <span class="text-[10px] font-comfortaa font-bold text-accentGreen tracking-widest block mb-2">03 / LIFESTYLE</span>
+                            <h4 class="font-bold text-sm text-navyBlue mb-2">生活方式层</h4>
+                            <p class="text-[10px] text-accentKhaki mb-3">面向泛社区居民人群</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                高克重、极简版型T恤、高韧帆布袋、卫衣及冷帽。将百工集的机能生活美学完美缝接进寻常市民的日常穿搭。
+                            </p>
+                        </div>
+                        <div class="bg-accentGreen/5 p-2 rounded text-[10px] text-accentGreen font-medium text-center">
+                            大面值心智口碑与美学传播
+                        </div>
+                    </div>
+
+                    <!-- Layer 4 -->
+                    <div class="bg-white border-t-2 border-accentGold rounded p-4 flex flex-col justify-between h-[340px] shadow-sm">
+                        <div>
+                            <span class="text-[10px] font-comfortaa font-bold text-accentGold tracking-widest block mb-2">04 / CURATOR RITUAL</span>
+                            <h4 class="font-bold text-sm text-navyBlue mb-2">营造师创作礼盒</h4>
+                            <p class="text-[10px] text-accentKhaki mb-3">面向深度战略合伙人</p>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                专属定制创意工具包、策划卡具及纪念册等多项定制高端物料，用于年度评选及优秀营造师高规格迎新。
+                            </p>
+                        </div>
+                        <div class="bg-accentGold/5 p-2 rounded text-[10px] text-accentGold font-medium text-center">
+                            至臻礼遇、表彰与专业认同
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>Sustainable monetization strategy</span>
+                    <span>Slide 10</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: VI System & GPS Coordinates -->
+        <div class="slide" id="slide-11">
+            <div class="z-10 flex-grow flex flex-col justify-between">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">10 / Visual Identity</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">VI 视觉统一性与情感坐标体系</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">Visual Coordinates</span>
+                    </div>
+                </div>
+
+                <!-- Content Body -->
+                <div class="grid grid-cols-12 gap-6 my-auto items-stretch">
+                    <!-- Left: Color & Materials -->
+                    <div class="col-span-7 bg-white border border-borderBeige rounded-lg p-5 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-bold text-navyBlue text-sm mb-4"><i class="fa-solid fa-palette text-accentOrange mr-2"></i> 色彩材质逻辑体系</h4>
+                            <div class="grid grid-cols-3 gap-3 mb-4">
+                                <div class="border border-borderBeige/60 p-2 rounded">
+                                    <div class="h-6 w-full rounded bg-navyBlue mb-1.5"></div>
+                                    <p class="text-[10px] font-bold text-navyBlue font-comfortaa">板岩灰 #2E4C8B</p>
+                                    <p class="text-[9px] text-accentKhaki leading-tight mt-0.5">硬核机能基调与理性基础</p>
+                                </div>
+                                <div class="border border-borderBeige/60 p-2 rounded">
+                                    <div class="h-6 w-full rounded bg-accentOrange mb-1.5"></div>
+                                    <p class="text-[10px] font-bold text-navyBlue font-comfortaa">战术橙 #FF8E05</p>
+                                    <p class="text-[9px] text-accentKhaki leading-tight mt-0.5">象征无限热爱与跃动创造力</p>
+                                </div>
+                                <div class="border border-borderBeige/60 p-2 rounded">
+                                    <div class="h-6 w-full rounded bg-white border border-borderBeige mb-1.5"></div>
+                                    <p class="text-[10px] font-bold text-navyBlue font-comfortaa">水泥白 #FFF4E1</p>
+                                    <p class="text-[9px] text-accentKhaki leading-tight mt-0.5">增高对比度，提升视觉清晰</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                <strong>高规格硬核辅料：</strong> 核心装具在防撕扯工艺下均采用顶级 <strong>CORDURA®</strong> 授权，并搭配 <strong>FIDLOCK®</strong> 磁吸扣具，将极强精工品质与便利注入机能周边。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: GPS Coordinate system details -->
+                    <div class="col-span-5 flex flex-col justify-between gap-4">
+                        <div class="bg-navyBlue text-bgWarm rounded-lg p-5 flex-grow flex flex-col justify-between shadow-md">
+                            <div>
+                                <h4 class="font-bold text-sm text-accentYellow flex items-center gap-2"><i class="fa-solid fa-location-crosshairs"></i> GPS 情感归属锚点</h4>
+                                <p class="text-[11px] text-bgWarm/75 mt-2 leading-relaxed">
+                                    每件周边装具都在其织唛、手臂刺绣上铸刻专属社区或核心活动地标的经纬度坐标，构筑归属感。
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-white/10">
+                                <span class="text-[9px] text-accentKhaki font-comfortaa tracking-wider uppercase block mb-1">Coordinates Signature / 坐标标签</span>
+                                <span class="font-oswald text-xl lg:text-2xl font-bold text-accentOrange tracking-wider">N 36°40'28" / E 117°07'12"</span>
+                            </div>
+                        </div>
+                        
+                        <div class="h-[100px] rounded-lg overflow-hidden border border-borderBeige shadow">
+                            <img src="https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&q=80&w=800" alt="高质感机能背包周边特写" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>Visual uniformity system guidelines</span>
+                    <span>Slide 11</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Core Commitments & Long-Term Vision -->
+        <div class="slide" id="slide-12">
+            <!-- Full visual background gradient for emotional closure -->
+            <div class="absolute inset-0 z-0 opacity-15">
+                <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=1200" alt="社群温暖相聚活动" class="w-full h-full object-cover">
+            </div>
+            
+            <div class="z-10 flex-grow flex flex-col justify-between relative">
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                    <div>
+                        <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">11 / Commitment &amp; Vision</span>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">品牌承诺与社区精神愿景</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-comfortaa text-accentKhaki">Let Passion Land</span>
+                    </div>
+                </div>
+
+                <!-- Content Body: Large Typographic Statements -->
+                <div class="grid grid-cols-12 gap-8 my-auto items-center">
+                    <div class="col-span-7">
+                        <blockquote class="text-2xl font-bold text-navyBlue leading-snug tracking-wide mb-6">
+                            “让热爱落地，让灵魂为邻”[cite: 3]<br>
+                            <span class="text-base font-normal text-navyBlue/70 mt-3 block">
+                                在 CCA，我们坚信每一个人都生而蕴藏热爱与才华，而社区则是令这片闪光灵魂生根萌芽、尽情交融共振的舞台。[cite: 3]
+                            </span>
+                        </blockquote>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white/80 backdrop-blur-sm border border-borderBeige/60 p-3 rounded shadow-sm">
+                                <h4 class="text-xs font-bold text-accentOrange"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> 美学及真性情承诺</h4>
+                                <p class="text-[10px] text-navyBlue/70 mt-1 leading-relaxed">
+                                    用心雕琢空间细节，诚挚呵护并包容、体建每一份小众渴望与真实表达的声音。[cite: 3]
+                                </p>
+                            </div>
+                            <div class="bg-white/80 backdrop-blur-sm border border-borderBeige/60 p-3 rounded shadow-sm">
+                                <h4 class="text-xs font-bold text-accentBlue"><i class="fa-solid fa-diagram-project mr-1"></i> 专业及赋能承诺</h4>
+                                <p class="text-[10px] text-navyBlue/70 mt-1 leading-relaxed">
+                                    提供成熟后台核心资源与指导支持，护送主理人的梦想真正萌发落地。[cite: 3]
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-5 bg-white border border-borderBeige rounded-lg p-5 shadow-md">
+                        <span class="text-[10px] font-bold tracking-widest uppercase font-comfortaa text-accentKhaki block mb-1">Long-term Mission</span>
+                        <h4 class="font-bold text-navyBlue text-base mb-3">联盟长期使命</h4>
+                        <p class="text-xs text-navyBlue/70 leading-relaxed mb-4">
+                            通过美学运营、共创机制和精神原乡的打造，为都市社区重塑和提供精神归属感，激活潜在城市文化，让每个灵魂都能找到归属。[cite: 3]
+                        </p>
+                        <div class="pt-3 border-t border-borderBeige/60 flex items-center justify-between text-[11px] font-medium text-navyBlue">
+                            <span>百工集旗下生活方式板块</span>
+                            <span class="text-accentOrange font-comfortaa">© CCA ALLIANCE 2026</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
+                    <span>The ultimate spiritual homeland</span>
+                    <span>Slide 12</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PPT Navigation & Floating controllers -->
+    <div class="fixed bottom-6 left-0 right-0 flex justify-center items-center gap-6 z-50">
+        <div class="bg-white/90 backdrop-blur-md border border-borderBeige shadow-lg px-4 py-2.5 rounded-full flex items-center gap-5 text-navyBlue">
+            <button onclick="prevSlide()" class="hover:text-accentOrange transition-colors px-1 text-sm cursor-pointer" title="上一页"><i class="fa-solid fa-arrow-left"></i></button>
+            
+            <!-- Bullet indicators -->
+            <div class="flex gap-2" id="nav-bullets">
+                <!-- Javascript will generate slide buttons -->
+            </div>
+
+            <button onclick="nextSlide()" class="hover:text-accentOrange transition-colors px-1 text-sm cursor-pointer" title="下一页"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Quick index sidebar -->
+    <div class="fixed left-6 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-2 bg-white/70 backdrop-blur-sm border border-borderBeige/80 p-3 rounded-lg z-40 text-[10px] font-medium text-navyBlue shadow-md">
+        <p class="text-[8px] text-accentKhaki uppercase tracking-widest border-b border-borderBeige/60 pb-1.5 mb-1 font-bold">章节目录</p>
+        <button onclick="goToSlide(1)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">封面入口</button>
+        <button onclick="goToSlide(2)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">品牌定义</button>
+        <button onclick="goToSlide(3)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">核心理念</button>
+        <button onclick="goToSlide(4)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">四大属性</button>
+        <button onclick="goToSlide(5)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">核心载体</button>
+        <button onclick="goToSlide(6)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">1+N+4路径</button>
+        <button onclick="goToSlide(7)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">命名英文释义</button>
+        <button onclick="goToSlide(8)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">共享设施</button>
+        <button onclick="goToSlide(9)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">玩家信息大屏</button>
+        <button onclick="goToSlide(10)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">周边体系</button>
+        <button onclick="goToSlide(11)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">VI色彩与坐标</button>
+        <button onclick="goToSlide(12)" class="sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1">承诺与愿景</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 12;
+
+        // Auto-scale the presentation canvas to match screen dimensions (keep aspect ratio 16:9)
+        function resizePPT() {
+            const container = document.getElementById('ppt-container');
+            const targetWidth = 1280;
+            const targetHeight = 720;
+            
+            // Give some padding space around the window
+            const padding = 100;
+            const availableWidth = window.innerWidth - padding;
+            const availableHeight = window.innerHeight - padding - 48; // minus topbar height
+
+            const scaleX = availableWidth / targetWidth;
+            const scaleY = availableHeight / targetHeight;
+            const scale = Math.min(scaleX, scaleY, 1.2); // cap scale maximum for aesthetic presentation on 4K
+
+            container.style.transform = `scale(${scale})`;
+        }
+
+        window.addEventListener('resize', resizePPT);
+        window.addEventListener('DOMContentLoaded', () => {
+            resizePPT();
+            createBullets();
+            updateSlideView();
+        });
+
+        // Generate PPT navigation bullets
+        function createBullets() {
+            const container = document.getElementById('nav-bullets');
+            container.innerHTML = '';
+            for (let i = 1; i <= totalSlides; i++) {
+                const bullet = document.createElement('button');
+                bullet.className = `w-2 h-2 rounded-full transition-all cursor-pointer ${i === 1 ? 'bg-accentOrange w-4' : 'bg-navyBlue/30 hover:bg-navyBlue'}`;
+                bullet.title = `第 ${i} 页`;
+                bullet.onclick = () => goToSlide(i);
+                bullet.id = `bullet-${i}`;
+                container.appendChild(bullet);
+            }
+        }
+
+        // Navigate slide logic
+        function goToSlide(n) {
+            if (n < 1 || n > totalSlides) return;
+            
+            // Remove active classes
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            
+            // Set active slide
+            currentSlide = n;
+            document.getElementById(`slide-${currentSlide}`).classList.add('active');
+
+            updateSlideView();
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) goToSlide(currentSlide - 1);
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+        }
+
+        function updateSlideView() {
+            // Update page top-bar indicator
+            const numStr = currentSlide.toString().padStart(2, '0');
+            const totalStr = totalSlides.toString().padStart(2, '0');
+            document.getElementById('slide-number').innerText = `${numStr} / ${totalStr}`;
+
+            // Update bottom navigation bullets styling
+            for (let i = 1; i <= totalSlides; i++) {
+                const bullet = document.getElementById(`bullet-${i}`);
+                if (bullet) {
+                    if (i === currentSlide) {
+                        bullet.className = "w-2.5 h-2.5 rounded-full transition-all bg-accentOrange w-5 cursor-pointer";
+                    } else {
+                        bullet.className = "w-2 h-2 rounded-full transition-all bg-navyBlue/20 hover:bg-navyBlue cursor-pointer";
+                    }
+                }
+            }
+
+            // Highlight active sidebar chapters
+            const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+            sidebarBtns.forEach((btn, index) => {
+                if (index === currentSlide - 1) {
+                    btn.className = "sidebar-btn text-accentOrange text-left whitespace-nowrap py-1 font-bold border-l-2 border-accentOrange pl-2 cursor-pointer";
+                } else {
+                    btn.className = "sidebar-btn hover:text-accentOrange text-left whitespace-nowrap py-1 text-navyBlue/60 border-l border-transparent pl-2 cursor-pointer";
+                }
+            });
+        }
+
+        // Keyboard Arrow keys implementation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+                prevSlide();
+            }
+        });
+
+        // Fullscreen API implementation
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Function to programmatically generate and download PowerPoint PPTX
+        function exportToPPTX() {
+            const btn = document.getElementById('export-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1"></i> 正在生成 PPTX...';
+            btn.disabled = true;
+
+            try {
+                // Instantiating with case-sensitive class name in browser: PptxGenJS
+                let pptx = new PptxGenJS();
+                pptx.layout = 'LAYOUT_16x9';
+
+                // Core Palette from "百工集色卡册"
+                const bgWarm = 'FFF4E1';      // 蕾丝白 (主白)
+                const navyBlue = '2E4C8B';    // 银蓝 (主字/主深)
+                const accentOrange = 'FF8E05';// 亮橙 (高光/副主)
+                const borderBeige = 'E0D7C6'; // 褐白 (轻灰)
+                const accentKhaki = 'BF9F88'; // 卡其
+                const pureWhite = 'FFFFFF';   // 纯白
+
+                // Decor Grid Function (To mock the elegant grid styling on each slide)
+                function applyBaseSlideDecorator(slide, titleNumber, titleText, rightMetadata = "CCA Identity") {
+                    slide.background = { color: bgWarm };
+                    // Add thin framing border using standard string literal "rect" to avoid PptxGenJS dependency errors
+                    slide.addShape("rect", { x: 0.15, y: 0.15, w: '97%', h: '95%', line: { color: borderBeige, width: 1 }, fill: { color: 'none' } });
+                    // Slide header
+                    slide.addText(titleNumber, { x: 0.8, y: 0.5, fontSize: 10, color: accentOrange, bold: true, fontFace: 'Arial' });
+                    slide.addText(titleText, { x: 0.8, y: 0.8, fontSize: 24, color: navyBlue, bold: true, fontFace: 'Microsoft YaHei' });
+                    // Slide right meta
+                    slide.addText(rightMetadata, { x: 10.5, y: 0.5, w: 2.2, fontSize: 10, color: accentKhaki, align: 'right', fontFace: 'Arial' });
+                    // Slide footer signature
+                    slide.addText("The Greaks Community Center Alliance  |  百工集旗下生活方式板块", { x: 0.8, y: 6.6, fontSize: 9, color: accentKhaki, fontFace: 'Microsoft YaHei' });
+                }
+
+                // ----------------------------------------------------
+                // Slide 1: Cover Page
+                // ----------------------------------------------------
+                let s1 = pptx.addSlide();
+                s1.background = { color: bgWarm };
+                s1.addShape("rect", { x: 0.15, y: 0.15, w: '97%', h: '95%', line: { color: borderBeige, width: 1 }, fill: { color: 'none' } });
+                
+                s1.addText('Brand House 2.0  |  The Greaks Alliance', { x: 0.8, y: 1.0, fontSize: 13, color: navyBlue, fontFace: 'Arial', bold: true });
+                s1.addText('百工集 CCA\n社区中心联盟', { x: 0.8, y: 1.8, fontSize: 48, color: navyBlue, bold: true, fontFace: 'Microsoft YaHei', lineSpacing: 1.2 });
+                s1.addText('The Greaks Community Center Alliance', { x: 0.8, y: 3.5, fontSize: 16, color: accentKhaki, fontFace: 'Arial' });
+                s1.addText('链接无限热爱 · 共创理想生活', { x: 0.8, y: 4.5, fontSize: 18, color: accentOrange, bold: true, fontFace: 'Microsoft YaHei' });
+                s1.addText('通过美学运营、共创机制和精神原乡的打造，为都市社区提供精神归属感，让热爱落地，让灵魂为邻。', { x: 0.8, y: 5.1, w: 8.0, fontSize: 12, color: navyBlue, fontFace: 'Microsoft YaHei' });
+
+                // ----------------------------------------------------
+                // Slide 2: Brand identity & definition
+                // ----------------------------------------------------
+                let s2 = pptx.addSlide();
+                applyBaseSlideDecorator(s2, "01 / Brand Definition", "品牌全称与身份定位", "CCA Identity");
+                // Left Column: Primary Concept Card
+                s2.addShape("rect", { x: 0.8, y: 1.6, w: 3.5, h: 4.4, fill: { color: pureWhite }, line: { color: borderBeige, width: 1 } });
+                s2.addText('核心定位', { x: 1.1, y: 1.9, fontSize: 10, color: 'D59F09', bold: true, fill: { color: 'FBCE6A' } });
+                s2.addText('城市文化生活方式合伙人', { x: 1.1, y: 2.3, w: 3.0, fontSize: 16, color: navyBlue, bold: true, fontFace: 'Microsoft YaHei' });
+                s2.addText('CCA不仅是社区空间的运营者，更是居民理想生活的共创者。通过高度责任感与专业度，打破都市原子化隔阂，共同编织理想生活网。', { x: 1.1, y: 3.2, w: 3.0, fontSize: 10.5, color: '555555', fontFace: 'Microsoft YaHei' });
+
+                // Right Column: The 3 Core Deliveries
+                const deliveries = [
+                    { num: "01", title: "有温度的选择 / Warm & Selective", desc: "深度贴近社群和居民的真实诉求，拒绝冷冰冰、毫无温度的标准化硬性铺装。" },
+                    { num: "02", title: "专业的赋能 / Professional & Capable", desc: "依托百工集深厚积淀，提供完善的后台资源支持与行动指导，让主理人创意落地。" },
+                    { num: "03", title: "活力的创新 / Vibrant & Creative", desc: "持续引入前卫且多元的新鲜体验，拒绝一成不变，保持社区永续不衰的生命活力。" }
+                ];
+                deliveries.forEach((del, idx) => {
+                    let cardY = 1.6 + (idx * 1.5);
+                    s2.addShape("rect", { x: 4.6, y: cardY, w: 7.4, h: 1.3, fill: { color: pureWhite }, line: { color: borderBeige, width: 1 } });
+                    s2.addText(del.num, { x: 4.8, y: cardY + 0.2, fontSize: 16, color: accentOrange, bold: true, fontFace: 'Arial' });
+                    s2.addText(del.title, { x: 5.4, y: cardY + 0.2, fontSize: 13, color: navyBlue, bold: true, fontFace: 'Microsoft YaHei' });
+                    s2.addText(del.desc, { x: 5.4, y: cardY + 0.6, w: 6.3, fontSize: 10.5, color: '555555', fontFace: 'Microsoft YaHei' });
+                });
+
+                // ----------------------------------------------------
+                // Slide 3: Brand Core Philosophy System
+                // ----------------------------------------------------
+                let s3 = pptx.addSlide();
+                applyBaseSlideDecorator(s3, "02 / Core Philosophy", "品牌核心理念体系", "CCA Principles");
+                
+                // Three cards
+                const principles = [
+                    { type: "Vision / 愿景", title: "共创美好生活", desc: "打破城市原子化隔阂，让热爱成为连结彼此的纽带。我们致力于构建一个让每一个灵魂都能找到精神寄托的“原乡”，在这里实现美学与人文在日常生活的无缝交融。", borderCol: accentOrange, p_x: 0.8 },
+                    { type: "Mission / 使命", title: "链接价值，激活潜能", desc: "深度挖掘每一位社区成员身上的闪光点，并将其高效汇聚成城市本土文化生长的源动力。CCA 旨在通过高效链接，让社区演变为一个持续涌现创意和活力的生态体系。", borderCol: '002FA8', p_x: 4.7 },
+                    { type: "Core Belief / 核心价值观", title: "以美为引，共建梦想", desc: "从空间规划到社群互动，让机能美学与人性温厚关怀贯穿生活的全场景细节。我们始终深信，美学不是点缀饰品，而是日常的关怀，是凝聚社区的力量之源。", borderCol: '00DF6C', p_x: 8.6 }
+                ];
+                principles.forEach(p => {
+                    s3.addShape("rect", { x: p.p_x, y: 1.6, w: 3.4, h: 4.4, fill: { color: pureWhite }, line: { color: p.borderCol, width: 3 } });
+                    s3.addText(p.type, { x: p.p_x + 0.2, y: 1.9, fontSize: 11, color: p.borderCol, bold: true });
+                    s3.addText(p.title, { x: p.p_x + 0.2, y: 2.3, fontSize: 16, color: navyBlue, bold: true });
+                    s3.addText(p.desc, { x: p.p_x + 0.2, y: 2.8, w: 3.0, fontSize: 11, color: '555555', lineSpacing: 16 });
+                });
+
+                // ----------------------------------------------------
+                // Slide 4: Four Brand Personalities
+                // ----------------------------------------------------
+                let s4 = pptx.addSlide();
+                applyBaseSlideDecorator(s4, "03 / Brand Personalities", "CCA 四大核心个性", "Four Attributes");
+                
+                const pers = [
+                    { title: "感受美学", eng: "Aesthetic", desc: "建立极深层的情感连接，在空间的每一个死角与设计物料微末处，都能体会到被照顾、被周密理解的设计温度。", borderCol: "DC3C88", p_x: 0.8 },
+                    { title: "真性情", eng: "Authenticity", desc: "关注并呵护每一个真实、独特的个体成长。营造毫无功利枷锁、可以放肆享受高调性生活方式的精神净土。", borderCol: "00DF6C", p_x: 3.6 },
+                    { title: "专业赋能", eng: "Professionalism", desc: "基于百工集运营基底，构建高度完备的空间治理与多阶层孵化系统，无论何时都能提供可依赖的专业后援。", borderCol: "002FA8", p_x: 6.4 },
+                    { title: "开放包容", eng: "Openness", desc: "主动担当时代新思潮的引路者，敢于打破传统行业的思维壁垒，持续为社区跨界互动引入新鲜感。", borderCol: "FF30B4", p_x: 9.2 }
+                ];
+                pers.forEach(p => {
+                    s4.addShape("rect", { x: p.p_x, y: 1.6, w: 2.5, h: 4.4, fill: { color: pureWhite }, line: { color: p.borderCol, width: 1.5 } });
+                    s4.addText(p.title, { x: p.p_x + 0.2, y: 1.9, fontSize: 15, color: navyBlue, bold: true });
+                    s4.addText(p.eng, { x: p.p_x + 0.2, y: 2.3, fontSize: 10, color: p.borderCol, bold: true });
+                    s4.addText(p.desc, { x: p.p_x + 0.2, y: 2.8, w: 2.1, fontSize: 10, color: '555555', lineSpacing: 15 });
+                });
+
+                // ----------------------------------------------------
+                // Slide 5: Core Carriers
+                // ----------------------------------------------------
+                let s5 = pptx.addSlide();
+                applyBaseSlideDecorator(s5, "04 / Carriers", "核心载体：城市客厅与特色空间", "Urban Living Room");
+                
+                s5.addText('多功能场景融合\n集成公众交互、艺术策展、主理人工作和阅读休闲等。打破以往孤立固定的单一业态界限，弹性装载多元维度的社区社交与兴趣课程。\n\n闲置资源激活\n整合公共设施死角与闲置灰色领域，让空间价值真正回归社区居民。以小而美的精准点状更新激活社区价值。\n\n服务链条创新\n通过引入“如是家族”品牌配套及常态主场活动，重塑社区微循环，提供极其精细化的高品质社群管家陪伴。', 
+                    { x: 0.8, y: 1.6, w: 6.0, h: 4.4, fontSize: 12, color: navyBlue, fontFace: 'Microsoft YaHei', lineSpacing: 22 }
+                );
+                
+                // Vector Visual Panel Layout (Instead of remote CORS images)
+                s5.addShape("rect", { x: 7.2, y: 1.6, w: 4.8, h: 4.4, fill: { color: '2E4C8B' }, line: { color: 'E0D7C6', width: 2 } });
+                s5.addText('“让热爱落地\n让灵魂为邻”', { x: 7.6, y: 2.2, w: 4.0, fontSize: 24, color: 'FFF4E1', bold: true, align: 'center' });
+                // Draw line with v3.x compatible styling properties (avoid cx/cy)
+                s5.addShape("line", { x: 8.4, y: 3.6, w: 2.4, h: 0, line: { color: 'FF8E05', width: 2 } });
+                s5.addText('以机能美学重塑公共客厅\n以社区共创唤醒邻里脉搏', { x: 7.6, y: 4.0, w: 4.0, fontSize: 11, color: 'FFF4E1', align: 'center' });
+
+                // ----------------------------------------------------
+                // Slide 6: "1+N+4" Construction Model
+                // ----------------------------------------------------
+                let s6 = pptx.addSlide();
+                applyBaseSlideDecorator(s6, "05 / Construction Path", "“1+N+4” 社区系统化建设路径", "Ecosystem Blueprint");
+                
+                const networks = [
+                    { lead: "01 / Leader  |  1个核心引领", name: "CCA 品牌与运营团队", desc: "• 输出强势品牌背书、科学运营指导、设立“示范课堂”\n• 确保建设过程中的审美一致性与交付合规\n• 输出标准物料规范与前后台系统机制", p_x: 0.8, col: accentOrange },
+                    { lead: "02 / Dynamic  |  N个动力主体", name: "多元化自驱人群集", desc: "• 由常驻社区居民充当第一级体验和评价主体\n• 青年跨界主理人担任核心创意与执行先锋\n• 多元社群组织在CCA场域里进行自驱动活跃", p_x: 4.7, col: '002FA8' },
+                    { lead: "03 / Support  |  4方协同支撑", name: "多阶层联盟合作网络", desc: "• 深度融合【政府部门】提供合规与政策保驾\n• 汇合【企业伙伴】商业资金投入与商业模式赋能\n• 联合【社会组织】和【专业机构】全程精益运营", p_x: 8.6, col: '00DF6C' }
+                ];
+                networks.forEach(n => {
+                    s6.addShape("rect", { x: n.p_x, y: 1.6, w: 3.4, h: 4.4, fill: { color: pureWhite }, line: { color: borderBeige, width: 1 } });
+                    s6.addText(n.lead, { x: n.p_x + 0.2, y: 1.9, fontSize: 11, color: n.col, bold: true });
+                    s6.addText(n.name, { x: n.p_x + 0.2, y: 2.3, fontSize: 15, color: navyBlue, bold: true });
+                    s6.addText(n.desc, { x: n.p_x + 0.2, y: 2.8, w: 3.0, fontSize: 10.5, color: '555555', lineSpacing: 18 });
+                });
+
+                // ----------------------------------------------------
+                // Slide 7: Nomenclature / Name Interpretation
+                // ----------------------------------------------------
+                let s7 = pptx.addSlide();
+                applyBaseSlideDecorator(s7, "06 / Brand Interpretation", "CCA 品牌命名释义体系", "What CCA Stands For");
+                
+                let s7TableRows = [
+                    [{ text: '组成部分', options: { bold: true, fill: { color: '2E4C8B' }, color: 'FFFFFF' } }, { text: '中文含义', options: { bold: true, fill: { color: '2E4C8B' }, color: 'FFFFFF' } }, { text: '深层文化解读 / 场景展现', options: { bold: true, fill: { color: '2E4C8B' }, color: 'FFFFFF' } }],
+                    ['Core Space', '核心空间', '融合机能美学与前卫创意的实体聚落，代表“硬核探索”与“现代社交”的结合。'],
+                    ['Community', '社区', '不再是冷冰冰的标准化物理居住区，而成为以共创价值观和生活方式自驱聚集的暖意温床。'],
+                    ['Center', '中心', '汇拢并放大微小热爱的核心调度系统，提供极其精准的社群资源、主理人发声舞台。'],
+                    [{ text: 'CCA', options: { bold: true, fill: { color: 'FFF4E1' } } }, '社区中心联盟', '融合百工集，构建出一个链接城市多节点、基于共创精神与情感原乡共振的核心超级网络体系。']
+                ];
+                s7.addTable(s7TableRows, { x: 0.8, y: 1.8, w: 11.2, fontSize: 11, color: navyBlue, border: { pt: 1, color: borderBeige } });
+
+                // ----------------------------------------------------
+                // Slide 8: Shared Facilities Matrix
+                // ----------------------------------------------------
+                let s8 = pptx.addSlide();
+                applyBaseSlideDecorator(s8, "07 / Facility Matrix", "共享设施矩阵与场景应用", "Infrastructure Matrix");
+                
+                const s8Grids = [
+                    { title: "运动活力 / SPORTS VITALITY", desc: "篮球架、乒乓球台、羽毛球网、草坪网篮、舞蹈室。\n作为社区日常交往、打通隔阂的第一触点。", p_x: 0.8, y: 1.6, dot: accentOrange },
+                    { title: "亲子陪伴 / FAMILY COMPANIONSHIP", desc: "精心筹划沙坑、滑梯。注重家庭成长，\n构建高互动率、温暖有爱的安全活动场域。", p_x: 6.3, y: 1.6, dot: 'FF30B4' },
+                    { title: "学习成长 / STUDY & DEVELOPMENT", desc: "专注自习室、共享图书角。高舒适度，\n满足都市个体在闲暇时进行精神充电的渴望。", p_x: 0.8, y: 3.5, dot: '002FA8' },
+                    { title: "文化表达 / CULTURAL EXPRESSION", desc: "专属“主理人故事风采墙”。常态轮换展示\n社区营造师、共创主理人群体的温润成长故事。", p_x: 6.3, y: 3.5, dot: '00DF6C' }
+                ];
+                s8Grids.forEach(g => {
+                    s8.addShape("rect", { x: g.p_x, y: g.y, w: 5.4, h: 1.5, fill: { color: pureWhite }, line: { color: borderBeige, width: 1 } });
+                    // Using "ellipse" string literal as standard PptxGenJS v3.0 shape parameter
+                    s8.addShape("ellipse", { x: g.p_x + 0.2, y: g.y + 0.2, w: 0.15, h: 0.15, fill: { color: g.dot } });
+                    s8.addText(g.title, { x: g.p_x + 0.45, y: g.y + 0.15, fontSize: 13, color: navyBlue, bold: true });
+                    s8.addText(g.desc, { x: g.p_x + 0.45, y: g.y + 0.55, w: 4.8, fontSize: 10.5, color: '555555', lineSpacing: 15 });
+                });
+                s8.addText('【设施使用三原则】 免费开放：所有人均可免费享用  |  预约机制：自研轻量小程序即时锁入  |  押金制度：零门槛免费并防范损坏', 
+                    { x: 0.8, y: 5.6, w: 11.2, fontSize: 11, color: navyBlue, bold: true, align: 'center' }
+                );
+
+                // ----------------------------------------------------
+                // Slide 9: Community Hub
+                // ----------------------------------------------------
+                let s9 = pptx.addSlide();
+                applyBaseSlideDecorator(s9, "08 / Community Hub", "玩家中心：社区数字脑与信息枢纽", "Digital Touchpoint");
+                
+                s9.addShape("rect", { x: 0.8, y: 1.6, w: 4.2, h: 4.4, fill: { color: navyBlue } });
+                s9.addText('玩家交互终端大屏', { x: 1.1, y: 1.9, fontSize: 18, color: bgWarm, bold: true });
+                s9.addText('玩家中心终端是连接物理和数字社区的实时纽带。消除冷冰冰的数据汇报，赋予每一个跳跃数据最深挚的人性故事与荣誉感。', { x: 1.1, y: 2.5, w: 3.6, fontSize: 11.5, color: bgWarm, lineSpacing: 18 });
+                s9.addText('设计精髓：让温度能被实时触摸。', { x: 1.1, y: 4.8, fontSize: 11, color: accentOrange, bold: true });
+
+                const s9Modules = [
+                    { title: "1. 实时活动数据", desc: "当日排期、在线及活动人数。", p_x: 5.4, y: 1.6 },
+                    { title: "2. 社区活动日历", desc: "周度课程、长期规划和季度日。", p_x: 8.7, y: 1.6 },
+                    { title: "3. 主理人风采", desc: "轮流展现杰出主理人精神与故事。", p_x: 5.4, y: 3.0 },
+                    { title: "4. 安全科普/温暖提醒", desc: "气候、运动防范及温馨公告。", p_x: 8.7, y: 3.0 },
+                    { title: "5. 用户成就", desc: "活动排行榜、高频贡献纪念标签。", p_x: 5.4, y: 4.4 },
+                    { title: "6. 互动投票通道", desc: "社群方向实时决策与反馈窗口。", p_x: 8.7, y: 4.4 }
+                ];
+                s9Modules.forEach(m => {
+                    s9.addShape("rect", { x: m.p_x, y: m.y, w: 3.1, h: 1.2, fill: { color: pureWhite }, line: { color: borderBeige, width: 1 } });
+                    s9.addText(m.title, { x: m.p_x + 0.15, y: m.y + 0.15, fontSize: 12, color: accentOrange, bold: true });
+                    s9.addText(m.desc, { x: m.p_x + 0.15, y: m.y + 0.45, w: 2.8, fontSize: 10, color: '555555', lineSpacing: 14 });
+                });
+
+                // ----------------------------------------------------
+                // Slide 10: Merchandise Ecosystem
+                // ----------------------------------------------------
+                let s10 = pptx.addSlide();
+                applyBaseSlideDecorator(s10, "09 / Merchandise", "品牌周边产品四层分层生态", "Product Layer Design");
+                
+                const s10Layers = [
+                    { layer: "01 / WORKWEAR", title: "核心装备层", sub: "面向主理人 / 营造师", desc: "工业机能风工作服，采用 CORDURA® 极高耐磨面料，搭配景泰蓝徽章，建立尊崇的身份认同。", border: accentOrange, p_x: 0.8 },
+                    { layer: "02 / UTILITARIAN", title: "配件辅助层", sub: "面向高活跃社区骨干", desc: "高效战术背包、多用防刮手套、工具包及吸磁水壶。全维度助力主理人营造活动时效率高增。", border: '002FA8', p_x: 3.6 },
+                    { layer: "03 / LIFESTYLE", title: "生活方式层", sub: "面向广大社区居民群", desc: "极简版型T恤、高韧性手拎帆布袋、保暖冷帽。将百工集的机能美学完美缝接进寻常起居穿搭。", border: '00DF6C', p_x: 6.4 },
+                    { layer: "04 / CURATOR RITUAL", title: "营造师创作礼盒", sub: "深度战略合伙人", desc: "定制高端重质感礼盒，内含创意卡具、专属高规纪念物，用于年度评选及优秀主理人表彰。", border: 'D59F09', p_x: 9.2 }
+                ];
+                s10Layers.forEach(l => {
+                    s10.addShape("rect", { x: l.p_x, y: 1.6, w: 2.5, h: 4.4, fill: { color: pureWhite }, line: { color: l.border, width: 2 } });
+                    s10.addText(l.layer, { x: l.p_x + 0.15, y: 1.9, fontSize: 10, color: l.border, bold: true });
+                    s10.addText(l.title, { x: l.p_x + 0.15, y: 2.3, fontSize: 15, color: navyBlue, bold: true });
+                    s10.addText(l.sub, { x: l.p_x + 0.15, y: 2.7, fontSize: 10, color: accentKhaki, bold: true });
+                    s10.addText(l.desc, { x: l.p_x + 0.15, y: 3.1, w: 2.2, fontSize: 10, color: '555555', lineSpacing: 15 });
+                });
+
+                // ----------------------------------------------------
+                // Slide 11: VI System & GPS Coordinates
+                // ----------------------------------------------------
+                let s11 = pptx.addSlide();
+                applyBaseSlideDecorator(s11, "10 / Visual Identity", "VI 视觉统一性与情感坐标体系", "Visual Coordinates");
+                
+                s11.addText('色彩材质逻辑体系', { x: 0.8, y: 1.6, fontSize: 14, color: navyBlue, bold: true });
+                s11.addShape("rect", { x: 0.8, y: 2.0, w: 1.6, h: 0.6, fill: { color: navyBlue } });
+                s11.addText('板岩灰 #2E4C8B\n机能底色', { x: 0.8, y: 2.7, w: 1.6, fontSize: 9, color: navyBlue });
+
+                s11.addShape("rect", { x: 2.6, y: 2.0, w: 1.6, h: 0.6, fill: { color: accentOrange } });
+                s11.addText('战术橙 #FF8E05\n包装与高光', { x: 2.6, y: 2.7, w: 1.6, fontSize: 9, color: navyBlue });
+
+                s11.addShape("rect", { x: 4.4, y: 2.0, w: 1.6, h: 0.6, fill: { color: bgWarm }, line: { color: borderBeige, width: 1 } });
+                s11.addText('水泥白 #FFF4E1\n呼吸包容感', { x: 4.4, y: 2.7, w: 1.6, fontSize: 9, color: navyBlue });
+
+                s11.addText('机能面料标准：周边均采用 CORDURA® 纤维，并配有 FIDLOCK® 安全磁吸锁扣。', { x: 0.8, y: 3.3, w: 5.6, fontSize: 11, color: navyBlue });
+
+                s11.addShape("rect", { x: 0.8, y: 4.1, w: 5.4, h: 1.8, fill: { color: navyBlue } });
+                s11.addText('GPS 情感坐标锚定', { x: 1.0, y: 4.3, fontSize: 13, color: 'FFF4E1', bold: true });
+                s11.addText('每件周边在织唛缝线及刺绣上永久铸刻核心地标经纬度，让坐标成为生活态度的无声宣告。\nN 31°14\'52.8" / E 121°33\'28.3"', { x: 1.0, y: 4.7, w: 5.0, fontSize: 10, color: 'FFF4E1' });
+
+                // Right Geometric Mockup Panel (Safest way to avoid remote image failures)
+                s11.addShape("rect", { x: 6.8, y: 1.6, w: 5.2, h: 4.3, fill: { color: 'E0D7C6' } });
+                s11.addShape("rect", { x: 7.2, y: 2.0, w: 4.4, h: 3.5, fill: { color: 'FFFFFF' }, line: { color: '2E4C8B', width: 2 } });
+                s11.addText('CORDURA® x FIDLOCK®', { x: 7.4, y: 2.4, w: 4.0, fontSize: 14, color: 'FF8E05', bold: true, align: 'center' });
+                s11.addText('【硬核极强精工品质】\n极轻量磁吸安全带与防刮防磨包具结合', { x: 7.4, y: 3.0, w: 4.0, fontSize: 10.5, color: '2E4C8B', align: 'center' });
+                s11.addShape("rect", { x: 8.6, y: 4.0, w: 1.6, h: 0.5, fill: { color: '2E4C8B' } });
+                s11.addText('机能先锋', { x: 8.6, y: 4.15, w: 1.6, fontSize: 10, color: 'FFFFFF', bold: true, align: 'center' });
+
+                // ----------------------------------------------------
+                // Slide 12: Core Commitments & Long-Term Vision
+                // ----------------------------------------------------
+                let s12 = pptx.addSlide();
+                s12.background = { color: bgWarm };
+                s12.addShape("rect", { x: 0.15, y: 0.15, w: '97%', h: '95%', line: { color: borderBeige, width: 1 }, fill: { color: 'none' } });
+                s12.addText("11 / Commitment & Vision", { x: 0.8, y: 0.5, fontSize: 10, color: accentOrange, bold: true });
+                s12.addText("品牌承诺与社区精神愿景", { x: 0.8, y: 0.8, fontSize: 24, color: navyBlue, bold: true });
+
+                s12.addText('“让热爱落地，让灵魂为邻”\n\n在 CCA，我们坚信每个人都生而温存着独特的热爱和才华。通过极致的美学空间运营、协作互助的共创机制和精神原乡的建立，我们共同打破都市原子化隔膜。让美学和人文融入日常生活的每一个细节，回归精神原乡。', 
+                    { x: 0.8, y: 1.8, w: 6.5, fontSize: 13.5, color: navyBlue, bold: true, lineSpacing: 22 }
+                );
+
+                // Right Column Box for core promises summary
+                s12.addShape("rect", { x: 7.8, y: 1.8, w: 4.2, h: 4.2, fill: { color: pureWhite }, line: { color: borderBeige, width: 1 } });
+                s12.addText('【长期使命】', { x: 8.1, y: 2.1, fontSize: 15, color: accentOrange, bold: true });
+                s12.addText('通过美学运营、共创机制和精神原乡的建立，为冷硬的都市社区重塑和提供精神归属感，激活潜在城市本土文化生长力，让每个灵魂找到归属。', { x: 8.1, y: 2.5, w: 3.6, fontSize: 11, color: '555555', lineSpacing: 18 });
+                s12.addText('百工集旗下生活方式板块\n© CCA ALLIANCE 2026', { x: 8.1, y: 4.8, w: 3.6, fontSize: 11, color: accentKhaki, bold: true });
+
+                // ----------------------------------------------------
+                // Save PowerPoint Slide File to client device
+                // ----------------------------------------------------
+                pptx.writeFile({ fileName: '百工集CCA社区中心联盟品牌屋2.0.pptx' })
+                    .then(() => {
+                        // Recover button status
+                        btn.innerHTML = '<i class="fa-solid fa-file-powerpoint"></i> 一键导出为 PPTX (PowerPoint)';
+                        btn.disabled = false;
+                    })
+                    .catch(err => {
+                        console.error("PPTX Generation Failure:", err);
+                        btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 生成失败，请重试';
+                        btn.disabled = false;
+                    });
+
+            } catch (e) {
+                console.error("Export Engine Interrupted:", e);
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 引擎错误';
+                btn.disabled = false;
+                // Avoid using alert() in compliance with strict platform rules
+                const errorBox = document.createElement('div');
+                errorBox.className = 'fixed top-16 left-1/2 -translate-x-1/2 bg-accentRed text-white px-6 py-3 rounded-md shadow-lg z-50 text-sm font-medium';
+                errorBox.innerText = `导出失败，详情: ${e.message}`;
+                document.body.appendChild(errorBox);
+                setTimeout(() => errorBox.remove(), 4000);
+            }
+        }
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: false});
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleGesture();
+        }, {passive: false});
+
+        function handleGesture() {
+            const threshold = 50; // 手势识别阈值
+            if (touchEndX < touchStartX - threshold) {
+                nextSlide(); // 向左滑：下一页
+            } else if (touchEndX > touchStartX + threshold) {
+                prevSlide(); // 向右滑：上一页
+            }
+        }
+    </script>
+</body>
+</html>
