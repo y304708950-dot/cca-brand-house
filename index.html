@@ -30,11 +30,14 @@
                         accentDarkPink: '#DC3C88',// 沉粉
                         accentGreen: '#00DF6C',  // 主绿
                         accentFogBlue: '#5299A1',// 雾蓝
-                        accentYellow: '#FBCE6A', // 暖黄
+                        accentYellow: '#FBCE6B', // 暖黄
                         accentGold: '#D59F09',   // 暗金
                         accentRed: '#FA2D1A',    // 大红
                         accentRose: '#DB3B21',   // 玫红
-                        accentWine: '#7E0D09'    // 枣红
+                        accentWine: '#7E0D09',    // 枣红
+                        accentLightPink: '#FFB6B7',// 浅粉
+                        accentPurple: '#6E02BA',  // 秘紫
+                        accentForestGreen: '#6B8A09' // 森绿
                     },
                     fontFamily: {
                         comfortaa: ['Comfortaa', 'sans-serif'],
@@ -51,15 +54,23 @@
             background-color: #EBDDC3; /* 温暖外壳底色 */
             overflow: hidden;
             user-select: none;
-            touch-action: none; /* 新增：防止移动端在演示时意外触发系统滚动 */
         }
 
-        /* Widescreen presentation canvas scale setup */
+        /* Wrapper ensures layout matches visual size after scaling */
+        .ppt-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            flex: 1;
+            padding-top: 48px; /* topbar height */
+            overflow: hidden;
+        }
+
+        /* Presentation canvas - use zoom for scaling (click areas match visual) */
         .ppt-viewport {
             width: 1280px;
             height: 720px;
-            transform-origin: center center;
-            transition: transform 0.1s ease-out;
         }
 
         /* Slide Transition System */
@@ -104,7 +115,7 @@
         }
     </style>
 </head>
-<body class="min-height-screen flex flex-col items-center justify-center min-h-screen relative">
+<body class="min-height-screen flex flex-col items-center min-h-screen relative">
 
     <!-- Top control & metadata bar -->
     <div class="fixed top-0 left-0 right-0 h-12 bg-white/80 backdrop-blur-md border-b border-borderBeige flex items-center justify-between px-6 z-50 text-navyBlue text-sm font-medium">
@@ -124,7 +135,8 @@
         </div>
     </div>
 
-    <!-- MAIN PPT PRESENTATION VIEWPORT -->
+    <!-- MAIN PPT PRESENTATION VIEWPORT with wrapper for proper scaling -->
+    <div id="ppt-wrapper" class="ppt-wrapper">
     <div id="ppt-container" class="ppt-viewport shadow-2xl relative overflow-hidden bg-bgWarm rounded-xl border border-borderBeige/80">
         
         <!-- Decoration layer shared among standard layouts -->
@@ -147,7 +159,7 @@
                     <p class="text-xl font-medium text-navyBlue/80 tracking-widest mb-2 font-comfortaa uppercase">The Greaks Community Center Alliance</p>
                     <div class="h-1 w-24 bg-accentOrange mb-8 rounded"></div>
                     <p class="text-base text-navyBlue/70 max-w-2xl leading-relaxed">
-                        通过美学运营、共创机制和精神原乡的打造，为都市社区提供精神归属感，让热爱落地，让灵魂为邻。
+                        通过美学运营、共创机制和精神原乡的打造，为都市社区提供精神归属感，让热爱落地，让灵魂为邻。<br><span class="text-accentOrange font-medium">主观即幸福 · 付出即幸福 · 志同道合即幸福</span>
                     </p>
                 </div>
 
@@ -248,46 +260,76 @@
                 </div>
 
                 <!-- Content Body -->
-                <div class="grid grid-cols-3 gap-6 my-auto">
-                    <!-- Vision Card -->
-                    <div class="bg-white border-t-4 border-accentOrange rounded-lg p-6 shadow-sm flex flex-col justify-between h-[360px]">
-                        <div>
-                            <span class="text-[10px] uppercase font-bold tracking-widest font-comfortaa text-accentOrange block mb-2">Vision</span>
-                            <h3 class="text-lg font-bold text-navyBlue mb-4">品牌愿景：共创美好生活</h3>
-                            <p class="text-xs text-navyBlue/70 leading-relaxed">
-                                打破城市原子化隔阂，让热爱成为连结彼此的纽带。我们致力于构建一个让每一个灵魂都能找到精神寄托的“原乡”，在这里实现美学与人文在日常生活的无缝交融。
-                            </p>
+                <div class="flex flex-col gap-5 my-auto">
+                    <div class="grid grid-cols-3 gap-6">
+                        <!-- Vision Card -->
+                        <div class="bg-white border-t-4 border-accentOrange rounded-lg p-6 shadow-sm flex flex-col justify-between h-[280px]">
+                            <div>
+                                <span class="text-[10px] uppercase font-bold tracking-widest font-comfortaa text-accentOrange block mb-2">Vision</span>
+                                <h3 class="text-lg font-bold text-navyBlue mb-3">品牌愿景：共创美好生活</h3>
+                                <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                    打破城市原子化隔阂，让热爱成为连结彼此的纽带。构建一个让每一个灵魂都能找到精神寄托的"原乡"，实现美学与人文在日常生活的无缝交融。
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <i class="fa-solid fa-earth-asia text-accentOrange/20 text-4xl"></i>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <i class="fa-solid fa-earth-asia text-accentOrange/20 text-5xl"></i>
+
+                        <!-- Mission Card -->
+                        <div class="bg-white border-t-4 border-accentBlue rounded-lg p-6 shadow-sm flex flex-col justify-between h-[280px]">
+                            <div>
+                                <span class="text-[10px] uppercase font-bold tracking-widest font-comfortaa text-accentBlue block mb-2">Mission</span>
+                                <h3 class="text-lg font-bold text-navyBlue mb-3">品牌使命：链接价值，激活潜能</h3>
+                                <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                    深度挖掘每一位社区成员身上的闪光点，高效汇聚成城市本土文化生长的源动力。通过高效链接，让社区演变为持续涌现创意和活力的生态体系。
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <i class="fa-solid fa-bolt text-accentBlue/20 text-4xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Core Value Card -->
+                        <div class="bg-white border-t-4 border-accentGreen rounded-lg p-6 shadow-sm flex flex-col justify-between h-[280px]">
+                            <div>
+                                <span class="text-[10px] uppercase font-bold tracking-widest font-comfortaa text-accentGreen block mb-2">Core Belief</span>
+                                <h3 class="text-lg font-bold text-navyBlue mb-3">核心理念：以美为引，共建梦想</h3>
+                                <p class="text-xs text-navyBlue/70 leading-relaxed">
+                                    从空间规划到社群互动，让机能美学与人性温厚关怀贯穿生活的全场景细节。美学不是点缀饰品，而是日常的关怀，是凝聚社区的力量之源。
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <i class="fa-solid fa-compass text-accentGreen/20 text-4xl"></i>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Mission Card -->
-                    <div class="bg-white border-t-4 border-accentBlue rounded-lg p-6 shadow-sm flex flex-col justify-between h-[360px]">
-                        <div>
-                            <span class="text-[10px] uppercase font-bold tracking-widest font-comfortaa text-accentBlue block mb-2">Mission</span>
-                            <h3 class="text-lg font-bold text-navyBlue mb-4">品牌使命：链接价值，激活潜能</h3>
-                            <p class="text-xs text-navyBlue/70 leading-relaxed">
-                                深度挖掘每一位社区成员身上的闪光点，并将其高效汇聚成城市本土文化生长的源动力。CCA 旨在通过高效链接，让社区演变为一个持续涌现创意和活力的生态体系。
-                            </p>
+                    <!-- Brand Values Banner -->
+                    <div class="bg-navyBlue text-bgWarm rounded-lg p-5 flex items-center justify-between shadow-md">
+                        <div class="flex items-center gap-4">
+                            <span class="text-[10px] uppercase font-bold tracking-widest font-comfortaa text-accentYellow block whitespace-nowrap">Brand Values</span>
+                            <span class="w-px h-8 bg-white/20"></span>
+                            <h3 class="text-lg font-bold tracking-wide">品牌价值观</h3>
+                        </div>
+                        <div class="flex items-center gap-6">
+                            <div class="text-center">
+                                <span class="text-accentOrange font-bold text-base">主观即幸福</span>
+                                <p class="text-[9px] text-bgWarm/60 mt-0.5 font-comfortaa">Subjectivity is Happiness</p>
+                            </div>
+                            <span class="text-accentKhaki text-xl">·</span>
+                            <div class="text-center">
+                                <span class="text-accentGreen font-bold text-base">付出即幸福</span>
+                                <p class="text-[9px] text-bgWarm/60 mt-0.5 font-comfortaa">Giving is Happiness</p>
+                            </div>
+                            <span class="text-accentKhaki text-xl">·</span>
+                            <div class="text-center">
+                                <span class="text-accentLightPink font-bold text-base">志同道合即幸福</span>
+                                <p class="text-[9px] text-bgWarm/60 mt-0.5 font-comfortaa">Likemindedness is Happiness</p>
+                            </div>
                         </div>
                         <div class="text-right">
-                            <i class="fa-solid fa-bolt text-accentBlue/20 text-5xl"></i>
-                        </div>
-                    </div>
-
-                    <!-- Core Value Card -->
-                    <div class="bg-white border-t-4 border-accentGreen rounded-lg p-6 shadow-sm flex flex-col justify-between h-[360px]">
-                        <div>
-                            <span class="text-[10px] uppercase font-bold tracking-widest font-comfortaa text-accentGreen block mb-2">Core Belief</span>
-                            <h3 class="text-lg font-bold text-navyBlue mb-4">核心理念：以美为引，共建梦想</h3>
-                            <p class="text-xs text-navyBlue/70 leading-relaxed">
-                                从空间规划到社群互动，让机能美学与人性温厚关怀贯穿生活的全场景细节。我们始终深信，美学不是点缀饰品，而是日常的关怀，是凝聚社区的力量之源。
-                            </p>
-                        </div>
-                        <div class="text-right">
-                            <i class="fa-solid fa-compass text-accentGreen/20 text-5xl"></i>
+                            <i class="fa-solid fa-heart text-accentPink/30 text-3xl"></i>
                         </div>
                     </div>
                 </div>
@@ -849,73 +891,195 @@
             </div>
         </div>
 
-        <!-- Slide 11: VI System & GPS Coordinates -->
+        <!-- Slide 11: VI System & Full Color Palette -->
         <div class="slide" id="slide-11">
             <div class="z-10 flex-grow flex flex-col justify-between">
                 <!-- Header -->
-                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-4">
+                <div class="flex justify-between items-start border-b border-borderBeige/40 pb-3">
                     <div>
                         <span class="text-xs font-bold text-accentOrange uppercase tracking-widest font-comfortaa">10 / Visual Identity</span>
-                        <h2 class="text-2xl font-bold text-navyBlue mt-1">VI 视觉统一性与情感坐标体系</h2>
+                        <h2 class="text-2xl font-bold text-navyBlue mt-1">VI 视觉统一性与完整色卡体系</h2>
                     </div>
                     <div class="text-right">
-                        <span class="text-xs font-comfortaa text-accentKhaki">Visual Coordinates</span>
+                        <span class="text-xs font-comfortaa text-accentKhaki">Color Palette System</span>
                     </div>
                 </div>
 
                 <!-- Content Body -->
-                <div class="grid grid-cols-12 gap-6 my-auto items-stretch">
-                    <!-- Left: Color & Materials -->
-                    <div class="col-span-7 bg-white border border-borderBeige rounded-lg p-5 flex flex-col justify-between">
-                        <div>
-                            <h4 class="font-bold text-navyBlue text-sm mb-4"><i class="fa-solid fa-palette text-accentOrange mr-2"></i> 色彩材质逻辑体系</h4>
-                            <div class="grid grid-cols-3 gap-3 mb-4">
-                                <div class="border border-borderBeige/60 p-2 rounded">
-                                    <div class="h-6 w-full rounded bg-navyBlue mb-1.5"></div>
-                                    <p class="text-[10px] font-bold text-navyBlue font-comfortaa">板岩灰 #2E4C8B</p>
-                                    <p class="text-[9px] text-accentKhaki leading-tight mt-0.5">硬核机能基调与理性基础</p>
-                                </div>
-                                <div class="border border-borderBeige/60 p-2 rounded">
-                                    <div class="h-6 w-full rounded bg-accentOrange mb-1.5"></div>
-                                    <p class="text-[10px] font-bold text-navyBlue font-comfortaa">战术橙 #FF8E05</p>
-                                    <p class="text-[9px] text-accentKhaki leading-tight mt-0.5">象征无限热爱与跃动创造力</p>
-                                </div>
-                                <div class="border border-borderBeige/60 p-2 rounded">
-                                    <div class="h-6 w-full rounded bg-white border border-borderBeige mb-1.5"></div>
-                                    <p class="text-[10px] font-bold text-navyBlue font-comfortaa">水泥白 #FFF4E1</p>
-                                    <p class="text-[9px] text-accentKhaki leading-tight mt-0.5">增高对比度，提升视觉清晰</p>
-                                </div>
+                <div class="flex flex-col gap-4 my-auto">
+                    <!-- Warm Colors -->
+                    <div class="bg-white border border-borderBeige rounded-lg p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-[10px] font-bold tracking-widest font-comfortaa text-accentOrange uppercase">Warm Tones / 暖色篇</span>
+                            <span class="w-8 h-px bg-accentKhaki"></span>
+                            <span class="text-[9px] text-accentKhaki">动感 · 温暖 · 典雅</span>
+                        </div>
+                        <div class="grid grid-cols-9 gap-2">
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#FF8E05"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#FF8E05</p>
+                                <p class="text-[8px] text-navyBlue/80">亮橙</p>
+                                <p class="text-[7px] text-accentKhaki">动感·活力</p>
                             </div>
-                            <p class="text-xs text-navyBlue/70 leading-relaxed">
-                                <strong>高规格硬核辅料：</strong> 核心装具在防撕扯工艺下均采用顶级 <strong>CORDURA®</strong> 授权，并搭配 <strong>FIDLOCK®</strong> 磁吸扣具，将极强精工品质与便利注入机能周边。
-                            </p>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#FBCE6B"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#FBCE6B</p>
+                                <p class="text-[8px] text-navyBlue/80">暖黄</p>
+                                <p class="text-[7px] text-accentKhaki">纯粹·温暖</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#D59F09"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#D59F09</p>
+                                <p class="text-[8px] text-navyBlue/80">暗金</p>
+                                <p class="text-[7px] text-accentKhaki">典雅·雍和</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#FA2D1A"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#FA2D1A</p>
+                                <p class="text-[8px] text-navyBlue/80">大红</p>
+                                <p class="text-[7px] text-accentKhaki">古典·澎拜</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded border border-borderBeige/60" style="background:#FFB6B7"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#FFB6B7</p>
+                                <p class="text-[8px] text-navyBlue/80">浅粉</p>
+                                <p class="text-[7px] text-accentKhaki">浪漫·礼物</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#FF30B4"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#FF30B4</p>
+                                <p class="text-[8px] text-navyBlue/80">荧粉</p>
+                                <p class="text-[7px] text-accentKhaki">邂逅·甜蜜</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#DC3C88"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#DC3C88</p>
+                                <p class="text-[8px] text-navyBlue/80">沉粉</p>
+                                <p class="text-[7px] text-accentKhaki">温柔·放松</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#DB3B21"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#DB3B21</p>
+                                <p class="text-[8px] text-navyBlue/80">玫红</p>
+                                <p class="text-[7px] text-accentKhaki">亲和·醒目</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#7E0D09"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#7E0D09</p>
+                                <p class="text-[8px] text-navyBlue/80">枣红</p>
+                                <p class="text-[7px] text-accentKhaki">庄重·严肃</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Right: GPS Coordinate system details -->
-                    <div class="col-span-5 flex flex-col justify-between gap-4">
-                        <div class="bg-navyBlue text-bgWarm rounded-lg p-5 flex-grow flex flex-col justify-between shadow-md">
-                            <div>
-                                <h4 class="font-bold text-sm text-accentYellow flex items-center gap-2"><i class="fa-solid fa-location-crosshairs"></i> GPS 情感归属锚点</h4>
-                                <p class="text-[11px] text-bgWarm/75 mt-2 leading-relaxed">
-                                    每件周边装具都在其织唛、手臂刺绣上铸刻专属社区或核心活动地标的经纬度坐标，构筑归属感。
-                                </p>
+                    <!-- Cool Colors -->
+                    <div class="bg-white border border-borderBeige rounded-lg p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-[10px] font-bold tracking-widest font-comfortaa text-accentBlue uppercase">Cool Tones / 冷色篇</span>
+                            <span class="w-8 h-px bg-accentKhaki"></span>
+                            <span class="text-[9px] text-accentKhaki">宁静 · 沉着 · 神秘</span>
+                        </div>
+                        <div class="grid grid-cols-9 gap-2">
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded border border-borderBeige/60" style="background:#E0D7C6"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#E0D7C6</p>
+                                <p class="text-[8px] text-navyBlue/80">褐白</p>
+                                <p class="text-[7px] text-accentKhaki">宁静·素雅</p>
                             </div>
-                            <div class="mt-4 pt-3 border-t border-white/10">
-                                <span class="text-[9px] text-accentKhaki font-comfortaa tracking-wider uppercase block mb-1">Coordinates Signature / 坐标标签</span>
-                                <span class="font-oswald text-xl lg:text-2xl font-bold text-accentOrange tracking-wider">N 36°40'28" / E 117°07'12"</span>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded border border-borderBeige/60" style="background:#FFF4E1"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#FFF4E1</p>
+                                <p class="text-[8px] text-navyBlue/80">蕾丝白</p>
+                                <p class="text-[7px] text-accentKhaki">和蔼·单纯</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#BF9F88"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#BF9F88</p>
+                                <p class="text-[8px] text-navyBlue/80">卡其</p>
+                                <p class="text-[7px] text-accentKhaki">传统·克制</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#5299A1"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#5299A1</p>
+                                <p class="text-[8px] text-navyBlue/80">雾蓝</p>
+                                <p class="text-[7px] text-accentKhaki">跳跃·迷离</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#6E02BA"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#6E02BA</p>
+                                <p class="text-[8px] text-navyBlue/80">秘紫</p>
+                                <p class="text-[7px] text-accentKhaki">神秘·尊贵</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#6B8A09"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#6B8A09</p>
+                                <p class="text-[8px] text-navyBlue/80">森绿</p>
+                                <p class="text-[7px] text-accentKhaki">认真·勇气</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#00DF6C"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#00DF6C</p>
+                                <p class="text-[8px] text-navyBlue/80">生绿</p>
+                                <p class="text-[7px] text-accentKhaki">干净·触目</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#2E4C8B"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#2E4C8B</p>
+                                <p class="text-[8px] text-navyBlue/80">银蓝</p>
+                                <p class="text-[7px] text-accentKhaki">沉着·冷静</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="h-8 w-full rounded" style="background:#002FA8"></div>
+                                <p class="text-[8px] font-bold text-navyBlue mt-1 font-comfortaa">#002FA8</p>
+                                <p class="text-[8px] text-navyBlue/80">克莱因蓝</p>
+                                <p class="text-[7px] text-accentKhaki">和蔼·单纯</p>
                             </div>
                         </div>
-                        
-                        <div class="h-[100px] rounded-lg overflow-hidden border border-borderBeige shadow">
-                            <img src="https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&q=80&w=800" alt="高质感机能背包周边特写" class="w-full h-full object-cover">
+                    </div>
+
+                    <!-- Bottom: Key Color Logic + GPS -->
+                    <div class="grid grid-cols-12 gap-4">
+                        <div class="col-span-7 bg-white border border-borderBeige rounded-lg p-4">
+                            <h4 class="font-bold text-navyBlue text-sm mb-2"><i class="fa-solid fa-palette text-accentOrange mr-2"></i> 核心色彩应用逻辑</h4>
+                            <div class="grid grid-cols-3 gap-3 mb-2">
+                                <div class="border border-borderBeige/60 p-2 rounded text-center">
+                                    <div class="h-4 w-full rounded mb-1" style="background:#2E4C8B"></div>
+                                    <p class="text-[9px] font-bold text-navyBlue">银蓝 · 主色调</p>
+                                    <p class="text-[8px] text-accentKhaki">硬核机能基调</p>
+                                </div>
+                                <div class="border border-borderBeige/60 p-2 rounded text-center">
+                                    <div class="h-4 w-full rounded mb-1" style="background:#FF8E05"></div>
+                                    <p class="text-[9px] font-bold text-navyBlue">亮橙 · 高光色</p>
+                                    <p class="text-[8px] text-accentKhaki">热爱与创造力</p>
+                                </div>
+                                <div class="border border-borderBeige/60 p-2 rounded text-center">
+                                    <div class="h-4 w-full rounded border border-borderBeige/60 mb-1" style="background:#FFF4E1"></div>
+                                    <p class="text-[9px] font-bold text-navyBlue">蕾丝白 · 底色</p>
+                                    <p class="text-[8px] text-accentKhaki">呼吸与包容感</p>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-navyBlue/70 leading-relaxed">
+                                <strong>高规格硬核辅料：</strong> CORDURA® 授权面料 + FIDLOCK® 磁吸扣具，精工品质与便利并行。
+                            </p>
+                        </div>
+                        <div class="col-span-5 bg-navyBlue text-bgWarm rounded-lg p-4 flex flex-col justify-between shadow-md">
+                            <div>
+                                <h4 class="font-bold text-sm text-accentYellow flex items-center gap-2"><i class="fa-solid fa-location-crosshairs"></i> GPS 情感归属锚点</h4>
+                                <p class="text-[10px] text-bgWarm/75 mt-1 leading-relaxed">
+                                    每件周边装具铸刻专属社区地标经纬度坐标，构筑归属感。
+                                </p>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-white/10">
+                                <span class="text-[8px] text-accentKhaki font-comfortaa tracking-wider uppercase block mb-0.5">Coordinates Signature</span>
+                                <span class="font-oswald text-lg font-bold text-accentOrange tracking-wider">N 36°40'28" / E 117°07'12"</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-4">
-                    <span>Visual uniformity system guidelines</span>
+                <div class="flex justify-between items-center text-[10px] text-accentKhaki uppercase tracking-widest border-t border-borderBeige/40 pt-2">
+                    <span>18-Color Palette from 百工集色卡册</span>
                     <span>Slide 11</span>
                 </div>
             </div>
@@ -943,24 +1107,30 @@
                 <!-- Content Body: Large Typographic Statements -->
                 <div class="grid grid-cols-12 gap-8 my-auto items-center">
                     <div class="col-span-7">
-                        <blockquote class="text-2xl font-bold text-navyBlue leading-snug tracking-wide mb-6">
-                            “让热爱落地，让灵魂为邻”[cite: 3]<br>
-                            <span class="text-base font-normal text-navyBlue/70 mt-3 block">
-                                在 CCA，我们坚信每一个人都生而蕴藏热爱与才华，而社区则是令这片闪光灵魂生根萌芽、尽情交融共振的舞台。[cite: 3]
-                            </span>
+                        <blockquote class="text-2xl font-bold text-navyBlue leading-snug tracking-wide mb-4">
+                            "让热爱落地，让灵魂为邻"
                         </blockquote>
                         
-                        <div class="grid grid-cols-2 gap-4">
+                        <!-- Brand Values Highlight -->
+                        <div class="bg-accentOrange/10 border-l-4 border-accentOrange p-3 rounded-r mb-4">
+                            <p class="text-sm font-bold text-accentOrange mb-1">百工集品牌价值观</p>
+                            <p class="text-base font-bold text-navyBlue tracking-wide">主观即幸福 · 付出即幸福 · 志同道合即幸福</p>
+                            <p class="text-[10px] text-navyBlue/60 mt-1 leading-relaxed">
+                                在 CCA，幸福无需外求——忠于内心的主观选择即幸福，为热爱真诚付出即幸福，与志同道合者同行即幸福。
+                            </p>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
                             <div class="bg-white/80 backdrop-blur-sm border border-borderBeige/60 p-3 rounded shadow-sm">
                                 <h4 class="text-xs font-bold text-accentOrange"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> 美学及真性情承诺</h4>
                                 <p class="text-[10px] text-navyBlue/70 mt-1 leading-relaxed">
-                                    用心雕琢空间细节，诚挚呵护并包容、体建每一份小众渴望与真实表达的声音。[cite: 3]
+                                    用心雕琢空间细节，诚挚呵护并包容每一份小众渴望与真实表达的声音。
                                 </p>
                             </div>
                             <div class="bg-white/80 backdrop-blur-sm border border-borderBeige/60 p-3 rounded shadow-sm">
                                 <h4 class="text-xs font-bold text-accentBlue"><i class="fa-solid fa-diagram-project mr-1"></i> 专业及赋能承诺</h4>
                                 <p class="text-[10px] text-navyBlue/70 mt-1 leading-relaxed">
-                                    提供成熟后台核心资源与指导支持，护送主理人的梦想真正萌发落地。[cite: 3]
+                                    提供成熟后台核心资源与指导支持，护送主理人的梦想真正萌发落地。
                                 </p>
                             </div>
                         </div>
@@ -970,7 +1140,7 @@
                         <span class="text-[10px] font-bold tracking-widest uppercase font-comfortaa text-accentKhaki block mb-1">Long-term Mission</span>
                         <h4 class="font-bold text-navyBlue text-base mb-3">联盟长期使命</h4>
                         <p class="text-xs text-navyBlue/70 leading-relaxed mb-4">
-                            通过美学运营、共创机制和精神原乡的打造，为都市社区重塑和提供精神归属感，激活潜在城市文化，让每个灵魂都能找到归属。[cite: 3]
+                            通过美学运营、共创机制和精神原乡的打造，为都市社区重塑和提供精神归属感，激活潜在城市文化，让每个灵魂都能找到归属。
                         </p>
                         <div class="pt-3 border-t border-borderBeige/60 flex items-center justify-between text-[11px] font-medium text-navyBlue">
                             <span>百工集旗下生活方式板块</span>
@@ -988,6 +1158,7 @@
         </div>
 
     </div>
+    </div><!-- end ppt-wrapper -->
 
     <!-- PPT Navigation & Floating controllers -->
     <div class="fixed bottom-6 left-0 right-0 flex justify-center items-center gap-6 z-50">
@@ -1024,23 +1195,29 @@
         let currentSlide = 1;
         const totalSlides = 12;
 
-        // Auto-scale the presentation canvas to match screen dimensions (keep aspect ratio 16:9)
+        // Auto-scale the presentation canvas
+        // Use zoom (not transform:scale) so click areas match visual rendering
         function resizePPT() {
             const container = document.getElementById('ppt-container');
+            const wrapper = document.getElementById('ppt-wrapper');
             const targetWidth = 1280;
             const targetHeight = 720;
-            
-            // Give some padding space around the window
-            const padding = 100;
+
+            const padding = 80;
             const availableWidth = window.innerWidth - padding;
-            const availableHeight = window.innerHeight - padding - 48; // minus topbar height
+            const availableHeight = window.innerHeight - padding - 48;
 
             const scaleX = availableWidth / targetWidth;
             const scaleY = availableHeight / targetHeight;
-            const scale = Math.min(scaleX, scaleY, 1.2); // cap scale maximum for aesthetic presentation on 4K
+            const scale = Math.min(scaleX, scaleY, 1.2);
 
-            container.style.transform = `scale(${scale})`;
+            // zoom scales BOTH visual and layout - clicks work correctly
+            container.style.zoom = scale;
+            // Wrapper matches zoomed visual size for correct layout
+            wrapper.style.width = (targetWidth * scale) + 'px';
+            wrapper.style.height = (targetHeight * scale) + 'px';
         }
+
 
         window.addEventListener('resize', resizePPT);
         window.addEventListener('DOMContentLoaded', () => {
@@ -1213,16 +1390,21 @@
                 
                 // Three cards
                 const principles = [
-                    { type: "Vision / 愿景", title: "共创美好生活", desc: "打破城市原子化隔阂，让热爱成为连结彼此的纽带。我们致力于构建一个让每一个灵魂都能找到精神寄托的“原乡”，在这里实现美学与人文在日常生活的无缝交融。", borderCol: accentOrange, p_x: 0.8 },
-                    { type: "Mission / 使命", title: "链接价值，激活潜能", desc: "深度挖掘每一位社区成员身上的闪光点，并将其高效汇聚成城市本土文化生长的源动力。CCA 旨在通过高效链接，让社区演变为一个持续涌现创意和活力的生态体系。", borderCol: '002FA8', p_x: 4.7 },
-                    { type: "Core Belief / 核心价值观", title: "以美为引，共建梦想", desc: "从空间规划到社群互动，让机能美学与人性温厚关怀贯穿生活的全场景细节。我们始终深信，美学不是点缀饰品，而是日常的关怀，是凝聚社区的力量之源。", borderCol: '00DF6C', p_x: 8.6 }
+                    { type: "Vision / 愿景", title: "共创美好生活", desc: "打破城市原子化隔阂，让热爱成为连结彼此的纽带。构建一个让每一个灵魂都能找到精神寄托的"原乡"，实现美学与人文在日常生活的无缝交融。", borderCol: accentOrange, p_x: 0.8 },
+                    { type: "Mission / 使命", title: "链接价值，激活潜能", desc: "深度挖掘每一位社区成员身上的闪光点，高效汇聚成城市本土文化生长的源动力。通过高效链接，让社区演变为持续涌现创意和活力的生态体系。", borderCol: '002FA8', p_x: 4.7 },
+                    { type: "Core Belief / 核心价值观", title: "以美为引，共建梦想", desc: "从空间规划到社群互动，让机能美学与人性温厚关怀贯穿生活的全场景细节。美学不是点缀饰品，而是日常的关怀，是凝聚社区的力量之源。", borderCol: '00DF6C', p_x: 8.6 }
                 ];
                 principles.forEach(p => {
-                    s3.addShape("rect", { x: p.p_x, y: 1.6, w: 3.4, h: 4.4, fill: { color: pureWhite }, line: { color: p.borderCol, width: 3 } });
+                    s3.addShape("rect", { x: p.p_x, y: 1.6, w: 3.4, h: 3.2, fill: { color: pureWhite }, line: { color: p.borderCol, width: 3 } });
                     s3.addText(p.type, { x: p.p_x + 0.2, y: 1.9, fontSize: 11, color: p.borderCol, bold: true });
                     s3.addText(p.title, { x: p.p_x + 0.2, y: 2.3, fontSize: 16, color: navyBlue, bold: true });
                     s3.addText(p.desc, { x: p.p_x + 0.2, y: 2.8, w: 3.0, fontSize: 11, color: '555555', lineSpacing: 16 });
                 });
+
+                // Brand Values Banner
+                s3.addShape("rect", { x: 0.8, y: 5.0, w: 11.2, h: 1.4, fill: { color: navyBlue } });
+                s3.addText('品牌价值观  Brand Values', { x: 1.1, y: 5.15, fontSize: 10, color: 'FBCE6B', bold: true });
+                s3.addText('主观即幸福 · 付出即幸福 · 志同道合即幸福', { x: 1.1, y: 5.5, w: 10.6, fontSize: 16, color: 'FFFFFF', bold: true, align: 'center' });
 
                 // ----------------------------------------------------
                 // Slide 4: Four Brand Personalities
@@ -1365,31 +1547,58 @@
                 // Slide 11: VI System & GPS Coordinates
                 // ----------------------------------------------------
                 let s11 = pptx.addSlide();
-                applyBaseSlideDecorator(s11, "10 / Visual Identity", "VI 视觉统一性与情感坐标体系", "Visual Coordinates");
+                applyBaseSlideDecorator(s11, "10 / Visual Identity", "VI 视觉统一性与完整色卡体系", "Color Palette System");
                 
-                s11.addText('色彩材质逻辑体系', { x: 0.8, y: 1.6, fontSize: 14, color: navyBlue, bold: true });
-                s11.addShape("rect", { x: 0.8, y: 2.0, w: 1.6, h: 0.6, fill: { color: navyBlue } });
-                s11.addText('板岩灰 #2E4C8B\n机能底色', { x: 0.8, y: 2.7, w: 1.6, fontSize: 9, color: navyBlue });
+                // Warm Tones Header
+                s11.addText('暖色篇 Warm Tones — 动感 · 温暖 · 典雅', { x: 0.8, y: 1.5, fontSize: 11, color: accentOrange, bold: true });
+                
+                // Warm colors row
+                const warmColors = [
+                    { hex: 'FF8E05', name: '亮橙' },
+                    { hex: 'FBCE6B', name: '暖黄' },
+                    { hex: 'D59F09', name: '暗金' },
+                    { hex: 'FA2D1A', name: '大红' },
+                    { hex: 'FFB6B7', name: '浅粉' },
+                    { hex: 'FF30B4', name: '荧粉' },
+                    { hex: 'DC3C88', name: '沉粉' },
+                    { hex: 'DB3B21', name: '玫红' },
+                    { hex: '7E0D09', name: '枣红' }
+                ];
+                warmColors.forEach((c, i) => {
+                    const cx = 0.8 + (i * 1.22);
+                    s11.addShape("rect", { x: cx, y: 1.9, w: 1.1, h: 0.8, fill: { color: c.hex } });
+                    s11.addText(c.name, { x: cx, y: 2.75, w: 1.1, fontSize: 8, color: navyBlue, bold: true, align: 'center' });
+                    s11.addText('#' + c.hex, { x: cx, y: 2.95, w: 1.1, fontSize: 6, color: accentKhaki, align: 'center' });
+                });
 
-                s11.addShape("rect", { x: 2.6, y: 2.0, w: 1.6, h: 0.6, fill: { color: accentOrange } });
-                s11.addText('战术橙 #FF8E05\n包装与高光', { x: 2.6, y: 2.7, w: 1.6, fontSize: 9, color: navyBlue });
+                // Cool Tones Header
+                s11.addText('冷色篇 Cool Tones — 宁静 · 沉着 · 神秘', { x: 0.8, y: 3.3, fontSize: 11, color: '002FA8', bold: true });
+                
+                // Cool colors row
+                const coolColors = [
+                    { hex: 'E0D7C6', name: '褐白' },
+                    { hex: 'FFF4E1', name: '蕾丝白' },
+                    { hex: 'BF9F88', name: '卡其' },
+                    { hex: '5299A1', name: '雾蓝' },
+                    { hex: '6E02BA', name: '秘紫' },
+                    { hex: '6B8A09', name: '森绿' },
+                    { hex: '00DF6C', name: '生绿' },
+                    { hex: '2E4C8B', name: '银蓝' },
+                    { hex: '002FA8', name: '克莱因蓝' }
+                ];
+                coolColors.forEach((c, i) => {
+                    const cx = 0.8 + (i * 1.22);
+                    const hasBorder = ['E0D7C6', 'FFF4E1'].includes(c.hex);
+                    s11.addShape("rect", { x: cx, y: 3.7, w: 1.1, h: 0.8, fill: { color: c.hex }, line: hasBorder ? { color: borderBeige, width: 1 } : undefined });
+                    s11.addText(c.name, { x: cx, y: 4.55, w: 1.1, fontSize: 8, color: navyBlue, bold: true, align: 'center' });
+                    s11.addText('#' + c.hex, { x: cx, y: 4.75, w: 1.1, fontSize: 6, color: accentKhaki, align: 'center' });
+                });
 
-                s11.addShape("rect", { x: 4.4, y: 2.0, w: 1.6, h: 0.6, fill: { color: bgWarm }, line: { color: borderBeige, width: 1 } });
-                s11.addText('水泥白 #FFF4E1\n呼吸包容感', { x: 4.4, y: 2.7, w: 1.6, fontSize: 9, color: navyBlue });
-
-                s11.addText('机能面料标准：周边均采用 CORDURA® 纤维，并配有 FIDLOCK® 安全磁吸锁扣。', { x: 0.8, y: 3.3, w: 5.6, fontSize: 11, color: navyBlue });
-
-                s11.addShape("rect", { x: 0.8, y: 4.1, w: 5.4, h: 1.8, fill: { color: navyBlue } });
-                s11.addText('GPS 情感坐标锚定', { x: 1.0, y: 4.3, fontSize: 13, color: 'FFF4E1', bold: true });
-                s11.addText('每件周边在织唛缝线及刺绣上永久铸刻核心地标经纬度，让坐标成为生活态度的无声宣告。\nN 31°14\'52.8" / E 121°33\'28.3"', { x: 1.0, y: 4.7, w: 5.0, fontSize: 10, color: 'FFF4E1' });
-
-                // Right Geometric Mockup Panel (Safest way to avoid remote image failures)
-                s11.addShape("rect", { x: 6.8, y: 1.6, w: 5.2, h: 4.3, fill: { color: 'E0D7C6' } });
-                s11.addShape("rect", { x: 7.2, y: 2.0, w: 4.4, h: 3.5, fill: { color: 'FFFFFF' }, line: { color: '2E4C8B', width: 2 } });
-                s11.addText('CORDURA® x FIDLOCK®', { x: 7.4, y: 2.4, w: 4.0, fontSize: 14, color: 'FF8E05', bold: true, align: 'center' });
-                s11.addText('【硬核极强精工品质】\n极轻量磁吸安全带与防刮防磨包具结合', { x: 7.4, y: 3.0, w: 4.0, fontSize: 10.5, color: '2E4C8B', align: 'center' });
-                s11.addShape("rect", { x: 8.6, y: 4.0, w: 1.6, h: 0.5, fill: { color: '2E4C8B' } });
-                s11.addText('机能先锋', { x: 8.6, y: 4.15, w: 1.6, fontSize: 10, color: 'FFFFFF', bold: true, align: 'center' });
+                // Bottom: Key Color Logic + GPS
+                s11.addText('核心色彩应用：银蓝(#2E4C8B)主色调 · 亮橙(#FF8E05)高光色 · 蕾丝白(#FFF4E1)底色', { x: 0.8, y: 5.2, w: 7.0, fontSize: 10, color: navyBlue });
+                s11.addText('高规格辅料：CORDURA® 面料 + FIDLOCK® 磁吸扣具', { x: 0.8, y: 5.55, w: 7.0, fontSize: 9, color: accentKhaki });
+                s11.addShape("rect", { x: 8.2, y: 5.1, w: 4.0, h: 1.3, fill: { color: navyBlue } });
+                s11.addText('GPS 情感坐标  N 36°40\'28" / E 117°07\'12"', { x: 8.4, y: 5.3, w: 3.6, fontSize: 10, color: 'FF8E05', bold: true });
 
                 // ----------------------------------------------------
                 // Slide 12: Core Commitments & Long-Term Vision
@@ -1400,9 +1609,21 @@
                 s12.addText("11 / Commitment & Vision", { x: 0.8, y: 0.5, fontSize: 10, color: accentOrange, bold: true });
                 s12.addText("品牌承诺与社区精神愿景", { x: 0.8, y: 0.8, fontSize: 24, color: navyBlue, bold: true });
 
-                s12.addText('“让热爱落地，让灵魂为邻”\n\n在 CCA，我们坚信每个人都生而温存着独特的热爱和才华。通过极致的美学空间运营、协作互助的共创机制和精神原乡的建立，我们共同打破都市原子化隔膜。让美学和人文融入日常生活的每一个细节，回归精神原乡。', 
-                    { x: 0.8, y: 1.8, w: 6.5, fontSize: 13.5, color: navyBlue, bold: true, lineSpacing: 22 }
-                );
+                s12.addText('“让热爱落地，让灵魂为邻”', { x: 0.8, y: 1.8, w: 6.5, fontSize: 18, color: navyBlue, bold: true, lineSpacing: 22 });
+
+                // Brand Values highlight in PPTX
+                s12.addShape("rect", { x: 0.8, y: 2.5, w: 6.5, h: 1.5, fill: { color: 'FFF4E1' }, line: { color: accentOrange, width: 2 } });
+                s12.addText('百工集品牌价值观', { x: 1.1, y: 2.6, fontSize: 10, color: accentOrange, bold: true });
+                s12.addText('主观即幸福 · 付出即幸福 · 志同道合即幸福', { x: 1.1, y: 2.9, w: 5.8, fontSize: 14, color: navyBlue, bold: true });
+                s12.addText('忠于内心的主观选择即幸福，为热爱真诚付出即幸福，与志同道合者同行即幸福。', { x: 1.1, y: 3.3, w: 5.8, fontSize: 9, color: '555555' });
+
+                s12.addShape("rect", { x: 0.8, y: 4.2, w: 3.1, h: 1.3, fill: { color: pureWhite }, line: { color: borderBeige, width: 1 } });
+                s12.addText('美学及真性情承诺', { x: 1.0, y: 4.3, fontSize: 10, color: accentOrange, bold: true });
+                s12.addText('用心雕琢空间细节，诚挚呵护每一份真实表达。', { x: 1.0, y: 4.6, w: 2.8, fontSize: 9, color: '555555' });
+
+                s12.addShape("rect", { x: 4.1, y: 4.2, w: 3.2, h: 1.3, fill: { color: pureWhite }, line: { color: borderBeige, width: 1 } });
+                s12.addText('专业及赋能承诺', { x: 4.3, y: 4.3, fontSize: 10, color: '002FA8', bold: true });
+                s12.addText('提供成熟后台核心资源与指导，护送梦想落地。', { x: 4.3, y: 4.6, w: 2.8, fontSize: 9, color: '555555' });
 
                 // Right Column Box for core promises summary
                 s12.addShape("rect", { x: 7.8, y: 1.8, w: 4.2, h: 4.2, fill: { color: pureWhite }, line: { color: borderBeige, width: 1 } });
