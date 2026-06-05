@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>CCA 品牌屋 2.0 - 品牌概念书</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,9 +14,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Oswald:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- PptxGenJS (Includes JSZip internally to enable client-side .pptx generation) -->
-    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+
+    <!-- PptxGenJS loaded with defer so it doesn't block page init -->
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js" defer></script>
 
     <script>
         tailwind.config = {
@@ -54,6 +57,8 @@
             background-color: #EBDDC3; /* 温暖外壳底色 */
             overflow: hidden;
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         /* Wrapper ensures layout matches visual size after scaling */
@@ -1218,13 +1223,14 @@
             wrapper.style.height = (targetHeight * scale) + 'px';
         }
 
-
-        window.addEventListener('resize', resizePPT);
-        window.addEventListener('DOMContentLoaded', () => {
+        // Init immediately when this script runs (end of body)
+        // Don't wait for DOMContentLoaded — the DOM is already parsed
+        (function init() {
             resizePPT();
             createBullets();
             updateSlideView();
-        });
+            window.addEventListener('resize', resizePPT);
+        })();
 
         // Generate PPT navigation bullets
         function createBullets() {
@@ -1660,22 +1666,43 @@
         }
 
         let touchStartX = 0;
+        let touchStartY = 0;
         let touchEndX = 0;
+        let touchEndY = 0;
+        let isSwiping = false;
 
         document.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+            isSwiping = false;
+        }, {passive: true});
+
+        document.addEventListener('touchmove', (e) => {
+            const dx = e.changedTouches[0].screenX - touchStartX;
+            const dy = e.changedTouches[0].screenY - touchStartY;
+            // If horizontal movement dominates, prevent default to stop page swipe-back gesture
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+                isSwiping = true;
+                e.preventDefault();
+            }
         }, {passive: false});
 
         document.addEventListener('touchend', (e) => {
             touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
             handleGesture();
-        }, {passive: false});
+        }, {passive: true});
 
         function handleGesture() {
-            const threshold = 50; // 手势识别阈值
-            if (touchEndX < touchStartX - threshold) {
+            if (!isSwiping) return;
+            const threshold = 50;
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+            // Only trigger if horizontal swipe dominates
+            if (Math.abs(dx) < Math.abs(dy)) return;
+            if (dx < -threshold) {
                 nextSlide(); // 向左滑：下一页
-            } else if (touchEndX > touchStartX + threshold) {
+            } else if (dx > threshold) {
                 prevSlide(); // 向右滑：上一页
             }
         }
